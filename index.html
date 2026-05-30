@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>德州扑克赛季积分计算器</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #e0e0e0;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        h1 {
+            text-align: center;
+            font-size: 2em;
+            margin-bottom: 8px;
+            color: #fff;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+        .subtitle {
+            text-align: center;
+            color: #8899aa;
+            margin-bottom: 30px;
+            font-size: 0.95em;
+        }
+        .card {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+        }
+        .card h2 {
+            font-size: 1.2em;
+            margin-bottom: 16px;
+            color: #64b5f6;
+        }
+        .settings-row {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+        .setting-group {
+            flex: 1;
+            min-width: 200px;
+        }
+        .setting-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 0.9em;
+            color: #aaa;
+        }
+        select, input[type="number"] {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 8px;
+            background: rgba(0,0,0,0.3);
+            color: #fff;
+            font-size: 1em;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        select:focus, input:focus {
+            border-color: #64b5f6;
+        }
+        .players-section {
+            margin-top: 16px;
+        }
+        .player-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 14px;
+            margin-bottom: 8px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.06);
+            transition: background 0.2s;
+        }
+        .player-row:hover {
+            background: rgba(0,0,0,0.3);
+        }
+        .player-num {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: rgba(100,181,246,0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85em;
+            color: #64b5f6;
+            flex-shrink: 0;
+        }
+        .player-row input[type="text"] {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 6px;
+            background: rgba(0,0,0,0.2);
+            color: #fff;
+            font-size: 0.95em;
+            outline: none;
+        }
+        .player-row input[type="text"]:focus {
+            border-color: #64b5f6;
+        }
+        .player-row input[type="number"] {
+            width: 120px;
+            flex-shrink: 0;
+        }
+        .chip-label {
+            font-size: 0.8em;
+            color: #888;
+        }
+        .btn-calculate {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #1e88e5, #1565c0);
+            border: none;
+            border-radius: 10px;
+            color: #fff;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.1s, box-shadow 0.2s;
+            margin-top: 12px;
+        }
+        .btn-calculate:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 20px rgba(30,136,229,0.4);
+        }
+        .btn-calculate:active {
+            transform: translateY(0);
+        }
+        .btn-add {
+            padding: 8px 16px;
+            background: rgba(100,181,246,0.15);
+            border: 1px dashed rgba(100,181,246,0.4);
+            border-radius: 8px;
+            color: #64b5f6;
+            font-size: 0.9em;
+            cursor: pointer;
+            margin-top: 8px;
+            transition: background 0.2s;
+        }
+        .btn-add:hover {
+            background: rgba(100,181,246,0.25);
+        }
+        .btn-remove {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: rgba(244,67,54,0.15);
+            border: none;
+            color: #ef5350;
+            cursor: pointer;
+            font-size: 1.1em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            transition: background 0.2s;
+        }
+        .btn-remove:hover {
+            background: rgba(244,67,54,0.3);
+        }
+        /* Results */
+        .results-card {
+            display: none;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(100,181,246,0.3);
+        }
+        .results-card.show { display: block; }
+        .result-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 12px;
+        }
+        .result-table th {
+            padding: 12px 8px;
+            text-align: center;
+            border-bottom: 2px solid rgba(100,181,246,0.3);
+            color: #64b5f6;
+            font-size: 0.9em;
+        }
+        .result-table td {
+            padding: 12px 8px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+        .rank-1 { color: #ffd700; font-weight: 700; }
+        .rank-2 { color: #c0c0c0; font-weight: 600; }
+        .rank-3 { color: #cd7f32; font-weight: 600; }
+        .medal { font-size: 1.3em; }
+        .score-highlight {
+            font-size: 1.15em;
+            font-weight: 700;
+            color: #4fc3f7;
+        }
+        .formula-note {
+            margin-top: 16px;
+            padding: 12px 16px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 8px;
+            font-size: 0.85em;
+            color: #999;
+            line-height: 1.6;
+        }
+        .eliminated-tag {
+            font-size: 0.75em;
+            padding: 2px 8px;
+            border-radius: 4px;
+            background: rgba(244,67,54,0.15);
+            color: #ef5350;
+        }
+        .winner-tag {
+            font-size: 0.75em;
+            padding: 2px 8px;
+            border-radius: 4px;
+            background: rgba(76,175,80,0.15);
+            color: #66bb6a;
+        }
+        @media (max-width: 600px) {
+            .player-row { flex-wrap: wrap; }
+            .player-row input[type="number"] { width: 100%; }
+            .settings-row { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🃏 德州扑克赛季积分计算器</h1>
+        <p class="subtitle">输入每位玩家的最终筹码，自动计算名次和积分 · <a href="rules.html" style="color:#64b5f6; text-decoration:none;">📖 查看完整规则</a></p>
+
+        <div class="card">
+            <h2>⚙️ 比赛设置</h2>
+            <div class="settings-row">
+                <div class="setting-group">
+                    <label>比赛模式</label>
+                    <select id="gameMode">
+                        <option value="short">短局（≤2小时）× 1.0</option>
+                        <option value="long">长局（>2小时）× 1.25</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>👥 玩家筹码</h2>
+            <p style="font-size:0.85em; color:#888; margin-bottom:12px;">输入每位玩家比赛结束时的筹码（出局玩家填 0）</p>
+            <div class="players-section" id="playersSection">
+                <!-- 动态生成 -->
+            </div>
+            <button class="btn-add" onclick="addPlayer()">+ 添加玩家</button>
+        </div>
+
+        <button class="btn-calculate" onclick="calculate()">🎯 计算积分</button>
+
+        <div class="card results-card" id="resultsCard">
+            <h2>🏆 本场积分结果</h2>
+            <table class="result-table">
+                <thead>
+                    <tr>
+                        <th>名次</th>
+                        <th>玩家</th>
+                        <th>筹码</th>
+                        <th>基础分</th>
+                        <th>人数系数</th>
+                        <th>时长系数</th>
+                        <th>最终积分</th>
+                    </tr>
+                </thead>
+                <tbody id="resultsBody"></tbody>
+            </table>
+            <div class="formula-note" id="formulaNote"></div>
+        </div>
+    </div>
+
+    <script>
+        const defaultPlayers = ['', '', '', '', '', ''];
+        
+        function init() {
+            const section = document.getElementById('playersSection');
+            section.innerHTML = '';
+            defaultPlayers.forEach((name, i) => {
+                addPlayerRow(section, name, i);
+            });
+        }
+
+        function addPlayerRow(container, name, index) {
+            const row = document.createElement('div');
+            row.className = 'player-row';
+            row.innerHTML = `
+                <div class="player-num">${index + 1}</div>
+                <input type="text" placeholder="玩家姓名" value="${name}" class="player-name">
+                <input type="number" placeholder="最终筹码" min="0" class="player-chips" value="">
+                <button class="btn-remove" onclick="removePlayer(this)" title="移除">×</button>
+            `;
+            container.appendChild(row);
+        }
+
+        function addPlayer() {
+            const section = document.getElementById('playersSection');
+            const count = section.children.length;
+            addPlayerRow(section, '', count);
+            updateNumbers();
+        }
+
+        function removePlayer(btn) {
+            const section = document.getElementById('playersSection');
+            if (section.children.length <= 5) {
+                alert('最少需要5位玩家参赛！');
+                return;
+            }
+            btn.parentElement.remove();
+            updateNumbers();
+        }
+
+        function updateNumbers() {
+            const rows = document.querySelectorAll('.player-row');
+            rows.forEach((row, i) => {
+                row.querySelector('.player-num').textContent = i + 1;
+            });
+        }
+
+        function getBaseScore(rank) {
+            const scores = { 1: 100, 2: 65, 3: 40, 4: 25, 5: 15 };
+            return scores[rank] || 10;
+        }
+
+        function getMedal(rank) {
+            if (rank === 1) return '🥇';
+            if (rank === 2) return '🥈';
+            if (rank === 3) return '🥉';
+            return `#${rank}`;
+        }
+
+        function calculate() {
+            const rows = document.querySelectorAll('.player-row');
+            const players = [];
+            
+            rows.forEach((row, i) => {
+                const name = row.querySelector('.player-name').value.trim() || `玩家${i + 1}`;
+                const chips = parseInt(row.querySelector('.player-chips').value) || 0;
+                players.push({ name, chips });
+            });
+
+            if (players.length < 5) {
+                alert('至少需要5位玩家！');
+                return;
+            }
+
+            // 检查是否有至少一个人有筹码
+            const totalChips = players.reduce((sum, p) => sum + p.chips, 0);
+            if (totalChips === 0) {
+                alert('请输入至少一位玩家的筹码数！');
+                return;
+            }
+
+            // 按筹码排序（筹码多的名次高）
+            const sorted = [...players].sort((a, b) => b.chips - a.chips);
+            
+            // 分配名次（相同筹码相同名次）
+            let currentRank = 1;
+            sorted.forEach((p, i) => {
+                if (i > 0 && p.chips < sorted[i - 1].chips) {
+                    currentRank = i + 1;
+                }
+                p.rank = currentRank;
+            });
+
+            const playerCount = players.length;
+            const peopleFactor = 1 + (playerCount - 5) * 0.1;
+            const mode = document.getElementById('gameMode').value;
+            const timeFactor = mode === 'long' ? 1.25 : 1.0;
+
+            // 计算积分
+            sorted.forEach(p => {
+                p.baseScore = getBaseScore(p.rank);
+                p.finalScore = Math.round(p.baseScore * peopleFactor * timeFactor * 10) / 10;
+            });
+
+            // 渲染结果
+            const tbody = document.getElementById('resultsBody');
+            tbody.innerHTML = '';
+            sorted.forEach(p => {
+                const rankClass = p.rank <= 3 ? `rank-${p.rank}` : '';
+                const tag = p.chips === 0 ? '<span class="eliminated-tag">已出局</span>' : 
+                           (p.rank === 1 ? '<span class="winner-tag">冠军</span>' : '');
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="${rankClass}"><span class="medal">${getMedal(p.rank)}</span></td>
+                    <td>${p.name} ${tag}</td>
+                    <td>${p.chips.toLocaleString()}</td>
+                    <td>${p.baseScore}</td>
+                    <td>×${peopleFactor.toFixed(1)}</td>
+                    <td>×${timeFactor.toFixed(2)}</td>
+                    <td class="score-highlight">${p.finalScore}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            document.getElementById('formulaNote').innerHTML = `
+                <strong>计算公式：</strong>单场积分 = 基础名次分 × 人数系数 × 时长系数<br>
+                本场参数：${playerCount}人局（人数系数 ×${peopleFactor.toFixed(1)}）| ${mode === 'long' ? '长局' : '短局'}（时长系数 ×${timeFactor.toFixed(2)}）<br>
+                名次规则：筹码多者排名高，筹码为0视为已出局（按输入顺序排在最后）
+            `;
+
+            const card = document.getElementById('resultsCard');
+            card.classList.add('show');
+            card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+
+        init();
+    </script>
+</body>
+</html>

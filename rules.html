@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>德州扑克赛季规则手册</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #fafbfc;
+            color: #2c3e50;
+            line-height: 1.7;
+            padding: 40px 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+            padding: 48px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 30px;
+            border-bottom: 2px solid #eef2f7;
+        }
+        .header h1 {
+            font-size: 2.2em;
+            color: #1a1a2e;
+            margin-bottom: 8px;
+        }
+        .header p {
+            color: #7f8c8d;
+            font-size: 1.05em;
+        }
+        .section {
+            margin-bottom: 36px;
+        }
+        .section h2 {
+            font-size: 1.4em;
+            color: #1a1a2e;
+            margin-bottom: 16px;
+            padding-left: 12px;
+            border-left: 4px solid #1e88e5;
+        }
+        .section h3 {
+            font-size: 1.1em;
+            color: #34495e;
+            margin: 16px 0 10px;
+        }
+        .formula-box {
+            background: linear-gradient(135deg, #e3f2fd, #f3e5f5);
+            border-radius: 12px;
+            padding: 20px 24px;
+            text-align: center;
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #1565c0;
+            margin: 16px 0;
+            border: 1px solid #bbdefb;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 12px 0;
+            font-size: 0.95em;
+        }
+        th {
+            background: #1a1a2e;
+            color: #fff;
+            padding: 12px 16px;
+            text-align: center;
+        }
+        th:first-child { border-radius: 8px 0 0 0; }
+        th:last-child { border-radius: 0 8px 0 0; }
+        td {
+            padding: 10px 16px;
+            text-align: center;
+            border-bottom: 1px solid #eef2f7;
+        }
+        tr:hover td { background: #f8f9fa; }
+        .highlight-row td {
+            background: #fff8e1;
+            font-weight: 600;
+        }
+        .badge {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+        .badge-gold { background: #fff3cd; color: #856404; }
+        .badge-silver { background: #e9ecef; color: #495057; }
+        .badge-bronze { background: #fde8d0; color: #7c4a03; }
+        .rule-list {
+            list-style: none;
+            padding: 0;
+        }
+        .rule-list li {
+            padding: 10px 16px;
+            margin-bottom: 8px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            border-left: 3px solid #1e88e5;
+        }
+        .rule-list li strong {
+            color: #1565c0;
+        }
+        .blind-table {
+            font-size: 0.88em;
+        }
+        .blind-table th {
+            background: #2c3e50;
+            padding: 8px 12px;
+        }
+        .blind-table td {
+            padding: 8px 12px;
+        }
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .two-col .col {
+            background: #f8f9fa;
+            border-radius: 12px;
+            padding: 16px;
+        }
+        .two-col .col h4 {
+            text-align: center;
+            margin-bottom: 12px;
+            color: #1565c0;
+        }
+        .example-box {
+            background: #f0f7ff;
+            border: 1px solid #bbdefb;
+            border-radius: 10px;
+            padding: 16px 20px;
+            margin: 12px 0;
+        }
+        .example-box .title {
+            font-weight: 700;
+            color: #1565c0;
+            margin-bottom: 8px;
+        }
+        .example-box .calc {
+            font-family: 'SF Mono', Menlo, monospace;
+            color: #555;
+            font-size: 0.92em;
+        }
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 2px solid #eef2f7;
+            text-align: center;
+            color: #aaa;
+            font-size: 0.9em;
+        }
+        @media (max-width: 600px) {
+            .container { padding: 24px 16px; }
+            .two-col { grid-template-columns: 1fr; }
+            .header h1 { font-size: 1.6em; }
+        }
+        @media print {
+            body { padding: 0; background: #fff; }
+            .container { box-shadow: none; padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🃏 德州扑克赛季规则手册</h1>
+            <p>朋友局赛季积分制 · 2026赛季适用</p>
+        </div>
+
+        <!-- 核心积分规则 -->
+        <div class="section">
+            <h2>📊 积分规则</h2>
+            <div class="formula-box">
+                单场积分 = 基础名次分 × 人数系数 × 时长系数
+            </div>
+
+            <h3>基础名次分</h3>
+            <table>
+                <thead>
+                    <tr><th>名次</th><th>分数</th><th>说明</th></tr>
+                </thead>
+                <tbody>
+                    <tr class="highlight-row"><td>🥇 第1名</td><td>100</td><td>冠军</td></tr>
+                    <tr><td>🥈 第2名</td><td>65</td><td>亚军</td></tr>
+                    <tr><td>🥉 第3名</td><td>40</td><td>季军</td></tr>
+                    <tr><td>第4名</td><td>25</td><td></td></tr>
+                    <tr><td>第5名</td><td>15</td><td></td></tr>
+                    <tr><td>第6名及以后</td><td>10</td><td>参与分</td></tr>
+                </tbody>
+            </table>
+
+            <h3>人数系数</h3>
+            <p style="margin-bottom:8px;">公式：<code>系数 = 1 + (人数 - 5) × 0.1</code></p>
+            <table>
+                <thead>
+                    <tr><th>参赛人数</th><th>5人</th><th>6人</th><th>7人</th><th>8人</th><th>9人</th><th>10人</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td><strong>系数</strong></td><td>×1.0</td><td>×1.1</td><td>×1.2</td><td>×1.3</td><td>×1.4</td><td>×1.5</td></tr>
+                </tbody>
+            </table>
+
+            <h3>时长系数</h3>
+            <table>
+                <thead>
+                    <tr><th>比赛模式</th><th>时长范围</th><th>系数</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>短局</td><td>≤ 2小时</td><td>×1.0</td></tr>
+                    <tr><td>长局</td><td>> 2小时</td><td>×1.25</td></tr>
+                </tbody>
+            </table>
+
+            <h3>计算示例</h3>
+            <div class="example-box">
+                <div class="title">示例1：7人长局，获得第2名</div>
+                <div class="calc">65（名次分）× 1.2（7人系数）× 1.25（长局）= <strong>97.5 分</strong></div>
+            </div>
+            <div class="example-box">
+                <div class="title">示例2：5人短局，获得第1名</div>
+                <div class="calc">100（名次分）× 1.0（5人系数）× 1.0（短局）= <strong>100 分</strong></div>
+            </div>
+            <div class="example-box">
+                <div class="title">示例3：8人长局，获得第5名</div>
+                <div class="calc">15（名次分）× 1.3（8人系数）× 1.25（长局）= <strong>24.4 分</strong></div>
+            </div>
+        </div>
+
+        <!-- 赛季规则 -->
+        <div class="section">
+            <h2>🏆 赛季规则</h2>
+            <ul class="rule-list">
+                <li><strong>赛季周期：</strong>自然年（1月1日 ~ 12月31日），跨年聚会时决算</li>
+                <li><strong>排名方式：</strong>赛季总积分最高者获胜</li>
+                <li><strong>达标门槛：</strong>参赛场次 ≥ 全年总场次 × 30%（不强制出勤，但防止只打1-2场就夺冠）</li>
+                <li><strong>赛前宣布：</strong>每场开打前确认参赛人数和比赛模式（短局/长局）</li>
+                <li><strong>名次判定：</strong>出局顺序即名次（最先出局 = 最后一名），最后存活者为冠军</li>
+                <li><strong>奖励方式：</strong>年底总分冠军赢得大家一起买的礼物 🎁</li>
+            </ul>
+        </div>
+
+        <!-- 盲注结构 -->
+        <div class="section">
+            <h2>⏱️ 盲注结构</h2>
+            <p style="margin-bottom:16px;">比赛采用递增盲注制，避免过度保守。开打前根据预计时长选择模式：</p>
+            
+            <div class="two-col">
+                <div class="col">
+                    <h4>🏃 短局模式</h4>
+                    <p style="text-align:center; font-size:0.85em; color:#666; margin-bottom:8px;">起始筹码 1500 · 每级 12分钟</p>
+                    <table class="blind-table">
+                        <thead><tr><th>级别</th><th>小盲/大盲</th><th>前注</th></tr></thead>
+                        <tbody>
+                            <tr><td>1</td><td>25/50</td><td>—</td></tr>
+                            <tr><td>2</td><td>50/100</td><td>—</td></tr>
+                            <tr><td>3</td><td>75/150</td><td>15</td></tr>
+                            <tr><td>4</td><td>100/200</td><td>25</td></tr>
+                            <tr><td>5</td><td>150/300</td><td>30</td></tr>
+                            <tr><td>6</td><td>200/400</td><td>50</td></tr>
+                            <tr><td>7</td><td>300/600</td><td>75</td></tr>
+                            <tr><td>8</td><td>500/1000</td><td>100</td></tr>
+                            <tr><td>9</td><td>750/1500</td><td>150</td></tr>
+                            <tr><td>10</td><td>1000/2000</td><td>200</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col">
+                    <h4>🧘 长局模式</h4>
+                    <p style="text-align:center; font-size:0.85em; color:#666; margin-bottom:8px;">起始筹码 3000 · 每级 20分钟</p>
+                    <table class="blind-table">
+                        <thead><tr><th>级别</th><th>小盲/大盲</th><th>前注</th></tr></thead>
+                        <tbody>
+                            <tr><td>1</td><td>25/50</td><td>—</td></tr>
+                            <tr><td>2</td><td>50/100</td><td>—</td></tr>
+                            <tr><td>3</td><td>75/150</td><td>—</td></tr>
+                            <tr><td>4</td><td>100/200</td><td>25</td></tr>
+                            <tr><td>5</td><td>150/300</td><td>30</td></tr>
+                            <tr><td>6</td><td>200/400</td><td>50</td></tr>
+                            <tr><td>7</td><td>300/600</td><td>75</td></tr>
+                            <tr><td>8</td><td>400/800</td><td>100</td></tr>
+                            <tr><td>9</td><td>500/1000</td><td>125</td></tr>
+                            <tr><td>10</td><td>750/1500</td><td>150</td></tr>
+                            <tr><td>11</td><td>1000/2000</td><td>200</td></tr>
+                            <tr><td>12</td><td>1500/3000</td><td>300</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 常见问题 -->
+        <div class="section">
+            <h2>❓ 常见问题</h2>
+            <ul class="rule-list">
+                <li><strong>Q：两人协商平分怎么算？</strong><br>A：按剩余人数中较高名次各自取分的平均值。例如剩2人协商结束，则各得 (100+65)/2 = 82.5 作为基础分</li>
+                <li><strong>Q：中途有人临时离开？</strong><br>A：筹码归桌上，等同于自动弃牌直到被盲注耗尽淘汰，名次按淘汰顺序算</li>
+                <li><strong>Q：打到一半换成长局可以吗？</strong><br>A：可以，比赛模式以实际结束时长为准。超过2小时就算长局</li>
+                <li><strong>Q：赛季中途加入的新人？</strong><br>A：正常参与积分，同样适用30%门槛规则</li>
+            </ul>
+        </div>
+
+        <div class="footer">
+            <p>📅 2026赛季 · 最终解释权归牌桌所有人共同所有 · 玩得开心最重要 🎉</p>
+        </div>
+    </div>
+</body>
+</html>
