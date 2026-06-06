@@ -182,78 +182,111 @@
         <div class="section">
             <h2>📊 积分规则</h2>
             <div class="formula-box">
-                单场积分 = 基础名次分 × 人数系数 × 时长系数
+                单场积分 = 名次分 + 人数加成
             </div>
+            <p style="margin-bottom:12px; color:#555;">这套规则的核心思想：<strong>单场分差不拉太大，让每个人都追得上</strong>。配合后面的「最佳N场 + 双榜」机制，谁都有机会逆袭。</p>
 
-            <h3>基础名次分</h3>
+            <h3>① 名次分</h3>
             <table>
                 <thead>
-                    <tr><th>名次</th><th>分数</th><th>说明</th></tr>
+                    <tr><th>名次</th><th>分数</th><th>名次</th><th>分数</th></tr>
                 </thead>
                 <tbody>
-                    <tr class="highlight-row"><td>🥇 第1名</td><td>100</td><td>冠军</td></tr>
-                    <tr><td>🥈 第2名</td><td>65</td><td>亚军</td></tr>
-                    <tr><td>🥉 第3名</td><td>40</td><td>季军</td></tr>
-                    <tr><td>第4名</td><td>25</td><td></td></tr>
-                    <tr><td>第5名</td><td>15</td><td></td></tr>
-                    <tr><td>第6名及以后</td><td>10</td><td>参与分</td></tr>
+                    <tr class="highlight-row"><td>🥇 第1</td><td>30</td><td>第5</td><td>12</td></tr>
+                    <tr><td>🥈 第2</td><td>24</td><td>第6</td><td>10</td></tr>
+                    <tr><td>🥉 第3</td><td>19</td><td>第7</td><td>8</td></tr>
+                    <tr><td>第4</td><td>15</td><td>第8及以后</td><td>5（保底）</td></tr>
                 </tbody>
             </table>
+            <p style="margin-top:8px; color:#888; font-size:0.9em;">💡 冠军和最后一名只差25分，不会一场定生死，留足追赶空间。</p>
 
-            <h3>人数系数</h3>
-            <p style="margin-bottom:8px;">公式：<code>系数 = 1 + (人数 - 5) × 0.1</code></p>
+            <h3>② 人数加成（只给前三名）</h3>
+            <p style="margin-bottom:8px; color:#555;">每超过5人，多1人就给<strong>前三名各加1分</strong>，体现人多的局含金量更高。</p>
             <table>
                 <thead>
                     <tr><th>参赛人数</th><th>5人</th><th>6人</th><th>7人</th><th>8人</th><th>9人</th><th>10人</th></tr>
                 </thead>
                 <tbody>
-                    <tr><td><strong>系数</strong></td><td>×1.0</td><td>×1.1</td><td>×1.2</td><td>×1.3</td><td>×1.4</td><td>×1.5</td></tr>
-                </tbody>
-            </table>
-
-            <h3>时长系数</h3>
-            <table>
-                <thead>
-                    <tr><th>比赛模式</th><th>时长范围</th><th>系数</th></tr>
-                </thead>
-                <tbody>
-                    <tr><td>短局</td><td>≤ 2小时</td><td>×1.0</td></tr>
-                    <tr><td>长局</td><td>> 2小时</td><td>×1.25</td></tr>
+                    <tr><td><strong>前三名加成</strong></td><td>+0</td><td>+1</td><td>+2</td><td>+3</td><td>+4</td><td>+5</td></tr>
                 </tbody>
             </table>
 
             <h3>计算示例</h3>
             <div class="example-box">
-                <div class="title">示例1：7人长局，获得第2名</div>
-                <div class="calc">65（名次分）× 1.2（7人系数）× 1.25（长局）= <strong>97.5 分</strong></div>
+                <div class="title">示例1：8人局，获得第1名（冠军）</div>
+                <div class="calc">30（名次分） + 3（8人，前三各+3）= <strong>33 分</strong></div>
             </div>
             <div class="example-box">
-                <div class="title">示例2：5人短局，获得第1名</div>
-                <div class="calc">100（名次分）× 1.0（5人系数）× 1.0（短局）= <strong>100 分</strong></div>
+                <div class="title">示例2：5人局，获得第1名</div>
+                <div class="calc">30（名次分） + 0（5人无加成）= <strong>30 分</strong></div>
             </div>
             <div class="example-box">
-                <div class="title">示例3：8人长局，获得第5名</div>
-                <div class="calc">15（名次分）× 1.3（8人系数）× 1.25（长局）= <strong>24.4 分</strong></div>
+                <div class="title">示例3：8人局，获得第5名</div>
+                <div class="calc">12（名次分） + 0（加成只给前三）= <strong>12 分</strong></div>
             </div>
+        </div>
+
+        <!-- 双榜机制 -->
+        <div class="section">
+            <h2>🏆 双榜机制（重点）</h2>
+            <p style="margin-bottom:12px; color:#555;">这是整套规则的灵魂——既照顾活跃度，又让人人能追逐冠军：</p>
+            <div class="two-col">
+                <div class="col">
+                    <h4>📊 总积分榜</h4>
+                    <p style="font-size:0.9em; color:#555; text-align:center;">所有场次<strong>全部累加</strong>。反映整体活跃度和战绩，日常看排名用，<strong>仅供参考</strong>。</p>
+                </div>
+                <div class="col">
+                    <h4>🏆 夺奖榜</h4>
+                    <p style="font-size:0.9em; color:#555; text-align:center;">只取每人<strong>得分最高的 N 场</strong>之和。打砸的场次自动丢弃。<strong>年底礼物以此榜为准！</strong></p>
+                </div>
+            </div>
+            <div class="example-box" style="margin-top:14px;">
+                <div class="title">N 怎么定？</div>
+                <div class="calc">N = 赛季总场次 × 60%，向上取整（赛季末确定）<br>
+                例：全年打10场 → 算每人最好的6场；打15场 → 算最好的9场<br>
+                参赛不足N场的人，用他全部场次（来得少就没挑选余地）</div>
+            </div>
+            <p style="margin-top:12px; color:#888; font-size:0.9em;">💡 为什么这样设计：纯累加会让常客越拉越远，新人永远追不上；只看「最佳N场」后，每个人都丢掉自己最差的几场，比拼的是<strong>巅峰发挥</strong>——来得少但场场精彩的人，照样能和常客掰手腕。</p>
+        </div>
+
+        <!-- 盈亏率 -->
+        <div class="section">
+            <h2>💰 盈亏率（趣味栏）</h2>
+            <p style="margin-bottom:12px; color:#555;">我们<strong>不玩钱</strong>，开局平分筹码，纯比谁的筹码玩出花来。盈亏率就是个长期战绩的趣味追踪：</p>
+            <table>
+                <thead>
+                    <tr><th>指标</th><th>算法</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td>本场盈亏</td><td>结束筹码 − 起始筹码</td></tr>
+                    <tr><td>本场收益率</td><td>本场盈亏 ÷ 起始筹码 × 100%</td></tr>
+                    <tr class="highlight-row"><td>赛季总收益率</td><td>累计盈亏 ÷ 累计起始筹码 × 100%</td></tr>
+                </tbody>
+            </table>
+            <div class="example-box" style="margin-top:12px;">
+                <div class="title">示例：起始1500，结束筹码4200</div>
+                <div class="calc">本场盈亏 = 4200 − 1500 = +2700<br>本场收益率 = 2700 ÷ 1500 = <strong>+180%</strong></div>
+            </div>
+            <p style="margin-top:10px; color:#888; font-size:0.9em;">💡 按中国习惯：<strong style="color:#d32f2f">红色=赚</strong>，<strong style="color:#388e3c">绿色=亏</strong>。每场桌上所有人盈亏加起来是0（零和），所以总收益率榜能看出谁是真·长期赢家。</p>
         </div>
 
         <!-- 赛季规则 -->
         <div class="section">
-            <h2>🏆 赛季规则</h2>
+            <h2>📋 赛季规则</h2>
             <ul class="rule-list">
                 <li><strong>赛季周期：</strong>自然年（1月1日 ~ 12月31日），跨年聚会时决算</li>
-                <li><strong>排名方式：</strong>赛季总积分最高者获胜</li>
+                <li><strong>最终排名：</strong>以「夺奖榜」（最佳N场之和）第1名为赛季冠军</li>
+                <li><strong>每场记录：</strong>开打前确认参赛人数和每人起始筹码（平分的数）</li>
                 <li><strong>达标门槛：</strong>参赛场次 ≥ 全年总场次 × 30%（不强制出勤，但防止只打1-2场就夺冠）</li>
-                <li><strong>赛前宣布：</strong>每场开打前确认参赛人数和比赛模式（短局/长局）</li>
                 <li><strong>名次判定：</strong>出局顺序即名次（最先出局 = 最后一名），最后存活者为冠军</li>
-                <li><strong>奖励方式：</strong>年底总分冠军赢得大家一起买的礼物 🎁</li>
+                <li><strong>奖励方式：</strong>年底夺奖榜冠军赢得大家一起买的礼物 🎁</li>
             </ul>
         </div>
 
         <!-- 盲注结构 -->
         <div class="section">
             <h2>⏱️ 盲注结构</h2>
-            <p style="margin-bottom:16px;">比赛采用递增盲注制，避免过度保守。开打前根据预计时长选择模式：</p>
+            <p style="margin-bottom:16px;">比赛采用递增盲注制，避免过度保守、一直磨小注。下面两套盲注表供参考，根据当天大家有多少时间灵活选用（时长不影响积分，纯看你们想打多久）：</p>
             
             <div class="two-col">
                 <div class="col">
@@ -303,9 +336,10 @@
         <div class="section">
             <h2>❓ 常见问题</h2>
             <ul class="rule-list">
-                <li><strong>Q：两人协商平分怎么算？</strong><br>A：按剩余人数中较高名次各自取分的平均值。例如剩2人协商结束，则各得 (100+65)/2 = 82.5 作为基础分</li>
+                <li><strong>Q：两人协商平分怎么算？</strong><br>A：两人都按存活到最后处理，名次取并列。例如7人局打到剩2人协商平分，两人都算并列第1名（各得名次分30 + 人数加成2 = 32分），其余按淘汰顺序排3-7名</li>
                 <li><strong>Q：中途有人临时离开？</strong><br>A：筹码归桌上，等同于自动弃牌直到被盲注耗尽淘汰，名次按淘汰顺序算</li>
-                <li><strong>Q：打到一半换成长局可以吗？</strong><br>A：可以，比赛模式以实际结束时长为准。超过2小时就算长局</li>
+                <li><strong>Q：起始筹码每次不一样有影响吗？</strong><br>A：没影响。大家起点相同（平分筹码），名次只看结束时谁筹码多，跟起始数量无关</li>
+                <li><strong>Q：来得少的人真的能赢吗？</strong><br>A：能。夺奖榜只看最佳N场，假设全年10场算最好6场——你只来了6场但场场发挥好，照样能赢只来打酱油的常客</li>
                 <li><strong>Q：赛季中途加入的新人？</strong><br>A：正常参与积分，同样适用30%门槛规则</li>
             </ul>
         </div>

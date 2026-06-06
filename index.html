@@ -1,428 +1,634 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>德州扑克赛季积分计算器</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
-            min-height: 100vh;
-            padding: 20px;
-            color: #e0e0e0;
-        }
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
-        }
-        h1 {
-            text-align: center;
-            font-size: 2em;
-            margin-bottom: 8px;
-            color: #fff;
-            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
-        }
-        .subtitle {
-            text-align: center;
-            color: #8899aa;
-            margin-bottom: 30px;
-            font-size: 0.95em;
-        }
-        .card {
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 16px;
-            padding: 24px;
-            margin-bottom: 20px;
-            backdrop-filter: blur(10px);
-        }
-        .card h2 {
-            font-size: 1.2em;
-            margin-bottom: 16px;
-            color: #64b5f6;
-        }
-        .settings-row {
-            display: flex;
-            gap: 20px;
-            flex-wrap: wrap;
-            margin-bottom: 16px;
-        }
-        .setting-group {
-            flex: 1;
-            min-width: 200px;
-        }
-        .setting-group label {
-            display: block;
-            margin-bottom: 6px;
-            font-size: 0.9em;
-            color: #aaa;
-        }
-        select, input[type="number"] {
-            width: 100%;
-            padding: 10px 14px;
-            border: 1px solid rgba(255,255,255,0.15);
-            border-radius: 8px;
-            background: rgba(0,0,0,0.3);
-            color: #fff;
-            font-size: 1em;
-            outline: none;
-            transition: border-color 0.2s;
-        }
-        select:focus, input:focus {
-            border-color: #64b5f6;
-        }
-        .players-section {
-            margin-top: 16px;
-        }
-        .player-row {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 10px 14px;
-            margin-bottom: 8px;
-            background: rgba(0,0,0,0.2);
-            border-radius: 10px;
-            border: 1px solid rgba(255,255,255,0.06);
-            transition: background 0.2s;
-        }
-        .player-row:hover {
-            background: rgba(0,0,0,0.3);
-        }
-        .player-num {
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            background: rgba(100,181,246,0.2);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.85em;
-            color: #64b5f6;
-            flex-shrink: 0;
-        }
-        .player-row input[type="text"] {
-            flex: 1;
-            padding: 8px 12px;
-            border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 6px;
-            background: rgba(0,0,0,0.2);
-            color: #fff;
-            font-size: 0.95em;
-            outline: none;
-        }
-        .player-row input[type="text"]:focus {
-            border-color: #64b5f6;
-        }
-        .player-row input[type="number"] {
-            width: 120px;
-            flex-shrink: 0;
-        }
-        .chip-label {
-            font-size: 0.8em;
-            color: #888;
-        }
-        .btn-calculate {
-            width: 100%;
-            padding: 14px;
-            background: linear-gradient(135deg, #1e88e5, #1565c0);
-            border: none;
-            border-radius: 10px;
-            color: #fff;
-            font-size: 1.1em;
-            font-weight: 600;
-            cursor: pointer;
-            transition: transform 0.1s, box-shadow 0.2s;
-            margin-top: 12px;
-        }
-        .btn-calculate:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 20px rgba(30,136,229,0.4);
-        }
-        .btn-calculate:active {
-            transform: translateY(0);
-        }
-        .btn-add {
-            padding: 8px 16px;
-            background: rgba(100,181,246,0.15);
-            border: 1px dashed rgba(100,181,246,0.4);
-            border-radius: 8px;
-            color: #64b5f6;
-            font-size: 0.9em;
-            cursor: pointer;
-            margin-top: 8px;
-            transition: background 0.2s;
-        }
-        .btn-add:hover {
-            background: rgba(100,181,246,0.25);
-        }
-        .btn-remove {
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            background: rgba(244,67,54,0.15);
-            border: none;
-            color: #ef5350;
-            cursor: pointer;
-            font-size: 1.1em;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-            transition: background 0.2s;
-        }
-        .btn-remove:hover {
-            background: rgba(244,67,54,0.3);
-        }
-        /* Results */
-        .results-card {
-            display: none;
-            background: rgba(255,255,255,0.08);
-            border: 1px solid rgba(100,181,246,0.3);
-        }
-        .results-card.show { display: block; }
-        .result-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 12px;
-        }
-        .result-table th {
-            padding: 12px 8px;
-            text-align: center;
-            border-bottom: 2px solid rgba(100,181,246,0.3);
-            color: #64b5f6;
-            font-size: 0.9em;
-        }
-        .result-table td {
-            padding: 12px 8px;
-            text-align: center;
-            border-bottom: 1px solid rgba(255,255,255,0.06);
-        }
-        .rank-1 { color: #ffd700; font-weight: 700; }
-        .rank-2 { color: #c0c0c0; font-weight: 600; }
-        .rank-3 { color: #cd7f32; font-weight: 600; }
-        .medal { font-size: 1.3em; }
-        .score-highlight {
-            font-size: 1.15em;
-            font-weight: 700;
-            color: #4fc3f7;
-        }
-        .formula-note {
-            margin-top: 16px;
-            padding: 12px 16px;
-            background: rgba(0,0,0,0.2);
-            border-radius: 8px;
-            font-size: 0.85em;
-            color: #999;
-            line-height: 1.6;
-        }
-        .eliminated-tag {
-            font-size: 0.75em;
-            padding: 2px 8px;
-            border-radius: 4px;
-            background: rgba(244,67,54,0.15);
-            color: #ef5350;
-        }
-        .winner-tag {
-            font-size: 0.75em;
-            padding: 2px 8px;
-            border-radius: 4px;
-            background: rgba(76,175,80,0.15);
-            color: #66bb6a;
-        }
-        @media (max-width: 600px) {
-            .player-row { flex-wrap: wrap; }
-            .player-row input[type="number"] { width: 100%; }
-            .settings-row { flex-direction: column; }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>德州扑克赛季积分系统</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    min-height: 100vh; padding: 16px; color: #e0e0e0;
+}
+.container { max-width: 940px; margin: 0 auto; }
+h1 { text-align: center; font-size: 1.8em; margin-bottom: 4px; color: #fff; }
+.subtitle { text-align: center; color: #8899aa; margin-bottom: 12px; font-size: 0.9em; }
+.sync-status { text-align: center; margin-bottom: 16px; font-size: 0.8em; }
+.sync-pill { display: inline-block; padding: 4px 12px; border-radius: 12px; }
+.sync-cloud { background: rgba(76,175,80,0.15); color: #66bb6a; }
+.sync-local { background: rgba(255,167,38,0.15); color: #ffa726; cursor: pointer; }
+.tabs { display: flex; gap: 6px; margin-bottom: 20px; background: rgba(0,0,0,0.2); padding: 6px; border-radius: 12px; flex-wrap: wrap; }
+.tab { flex: 1; min-width: 70px; padding: 12px 6px; text-align: center; border-radius: 8px; cursor: pointer; font-size: 0.9em; color: #8899aa; transition: all 0.2s; user-select: none; }
+.tab.active { background: linear-gradient(135deg, #1e88e5, #1565c0); color: #fff; font-weight: 600; }
+.tab:hover:not(.active) { background: rgba(255,255,255,0.05); }
+.panel { display: none; }
+.panel.active { display: block; }
+.card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 20px; margin-bottom: 16px; }
+.card h2 { font-size: 1.15em; margin-bottom: 14px; color: #64b5f6; }
+.player-row { display: flex; align-items: center; gap: 10px; padding: 10px 12px; margin-bottom: 8px; background: rgba(0,0,0,0.2); border-radius: 10px; border: 1px solid rgba(255,255,255,0.06); }
+.player-num { width: 26px; height: 26px; border-radius: 50%; background: rgba(100,181,246,0.2); display: flex; align-items: center; justify-content: center; font-size: 0.8em; color: #64b5f6; flex-shrink: 0; }
+input, select { padding: 9px 12px; border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; background: rgba(0,0,0,0.3); color: #fff; font-size: 0.95em; outline: none; transition: border-color 0.2s; }
+input:focus, select:focus { border-color: #64b5f6; }
+.player-row input[type="text"] { flex: 1; min-width: 0; }
+.player-row input[type="number"] { width: 110px; flex-shrink: 0; }
+.btn { padding: 13px; border: none; border-radius: 10px; color: #fff; font-size: 1.05em; font-weight: 600; cursor: pointer; transition: transform 0.1s, box-shadow 0.2s; width: 100%; }
+.btn-primary { background: linear-gradient(135deg, #1e88e5, #1565c0); margin-top: 10px; }
+.btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 20px rgba(30,136,229,0.4); }
+.btn-save { background: linear-gradient(135deg, #43a047, #2e7d32); margin-top: 10px; }
+.btn-save:hover { transform: translateY(-1px); box-shadow: 0 4px 20px rgba(67,160,71,0.4); }
+.btn-add { padding: 8px 16px; background: rgba(100,181,246,0.15); border: 1px dashed rgba(100,181,246,0.4); border-radius: 8px; color: #64b5f6; font-size: 0.9em; cursor: pointer; margin-top: 8px; width: auto; }
+.btn-add:hover { background: rgba(100,181,246,0.25); }
+.btn-remove { width: 26px; height: 26px; border-radius: 50%; background: rgba(244,67,54,0.15); border: none; color: #ef5350; cursor: pointer; font-size: 1.1em; flex-shrink: 0; }
+.btn-remove:hover { background: rgba(244,67,54,0.3); }
+table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+th { padding: 10px 5px; text-align: center; border-bottom: 2px solid rgba(100,181,246,0.3); color: #64b5f6; font-size: 0.8em; }
+td { padding: 11px 5px; text-align: center; border-bottom: 1px solid rgba(255,255,255,0.06); font-size: 0.88em; }
+.rank-1 { color: #ffd700; font-weight: 700; }
+.rank-2 { color: #c0c0c0; font-weight: 600; }
+.rank-3 { color: #cd7f32; font-weight: 600; }
+.medal { font-size: 1.2em; }
+.score-hl { font-size: 1.1em; font-weight: 700; color: #4fc3f7; }
+.profit-pos { color: #ff5252; font-weight: 600; }
+.profit-neg { color: #4caf50; font-weight: 600; }
+.tag { font-size: 0.72em; padding: 2px 7px; border-radius: 4px; }
+.tag-out { background: rgba(244,67,54,0.15); color: #ef5350; }
+.tag-win { background: rgba(76,175,80,0.15); color: #66bb6a; }
+.note { padding: 12px 14px; background: rgba(0,0,0,0.2); border-radius: 8px; font-size: 0.82em; color: #999; line-height: 1.6; margin-top: 12px; }
+.results-card { display: none; border-color: rgba(100,181,246,0.3); }
+.results-card.show { display: block; }
+.empty { text-align: center; color: #667; padding: 30px; font-size: 0.95em; }
+.lb-top3 { display: flex; gap: 10px; margin-bottom: 16px; }
+.lb-podium { flex: 1; text-align: center; padding: 16px 8px; border-radius: 12px; background: rgba(0,0,0,0.2); }
+.lb-podium .name { font-size: 1.05em; font-weight: 600; margin: 6px 0 2px; }
+.lb-podium .pts { font-size: 1.4em; font-weight: 700; }
+.lb-podium.p1 { background: linear-gradient(135deg, rgba(255,215,0,0.15), rgba(255,215,0,0.05)); border: 1px solid rgba(255,215,0,0.3); }
+.lb-podium.p1 .pts { color: #ffd700; }
+.lb-podium.p2 { background: rgba(192,192,192,0.1); border: 1px solid rgba(192,192,192,0.2); }
+.lb-podium.p2 .pts { color: #c0c0c0; }
+.lb-podium.p3 { background: rgba(205,127,50,0.1); border: 1px solid rgba(205,127,50,0.2); }
+.lb-podium.p3 .pts { color: #cd7f32; }
+.history-item { background: rgba(0,0,0,0.2); border-radius: 12px; padding: 14px 16px; margin-bottom: 10px; border: 1px solid rgba(255,255,255,0.06); }
+.history-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.history-date { font-size: 0.9em; color: #64b5f6; font-weight: 600; }
+.history-meta { font-size: 0.8em; color: #888; }
+.history-result { font-size: 0.85em; color: #bbb; line-height: 1.7; }
+.history-result .h-win { color: #66bb6a; font-weight: 600; }
+.btn-del-history { background: none; border: none; color: #ef5350; cursor: pointer; font-size: 0.8em; opacity: 0.6; }
+.btn-del-history:hover { opacity: 1; }
+.toolbar { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+.btn-tool { padding: 8px 14px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; color: #ccc; font-size: 0.85em; cursor: pointer; width: auto; }
+.btn-tool:hover { background: rgba(255,255,255,0.15); }
+.btn-tool.danger { color: #ef5350; border-color: rgba(244,67,54,0.3); }
+.formula-display { background: linear-gradient(135deg, rgba(30,136,229,0.15), rgba(103,58,183,0.1)); border-radius: 10px; padding: 14px; text-align: center; font-size: 0.95em; color: #90caf9; margin-bottom: 14px; border: 1px solid rgba(100,181,246,0.2); }
+.sub-tabs { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; }
+.sub-tab { flex: 1; min-width: 90px; padding: 10px; text-align: center; border-radius: 8px; cursor: pointer; font-size: 0.88em; color: #8899aa; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.06); user-select: none; transition: all 0.2s; }
+.sub-tab.active { background: rgba(100,181,246,0.15); color: #64b5f6; border-color: rgba(100,181,246,0.3); font-weight: 600; }
+.sub-panel { display: none; }
+.sub-panel.active { display: block; }
+.count-badge { font-size: 0.72em; color: #888; }
+.config-row { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; font-size: 0.9em; color: #aaa; }
+.config-row input[type="number"] { width: 75px; }
+.startchip-box { background: rgba(103,58,183,0.12); border: 1px solid rgba(149,117,205,0.3); border-radius: 10px; padding: 12px 14px; margin-bottom: 14px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.startchip-box label { font-size: 0.92em; color: #b39ddb; }
+.startchip-box input { width: 130px; }
+.modal-mask { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 100; align-items: center; justify-content: center; padding: 16px; }
+.modal-mask.show { display: flex; }
+.modal { background: #1a2138; border: 1px solid rgba(100,181,246,0.3); border-radius: 16px; padding: 24px; max-width: 560px; width: 100%; max-height: 90vh; overflow-y: auto; }
+.modal h3 { color: #64b5f6; margin-bottom: 12px; }
+.modal p, .modal li { font-size: 0.88em; color: #bbb; line-height: 1.6; }
+.modal ol { padding-left: 20px; margin: 10px 0; }
+.modal textarea { width: 100%; height: 150px; margin: 12px 0; padding: 12px; border-radius: 8px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.15); color: #9fe; font-family: monospace; font-size: 0.8em; resize: vertical; }
+.modal-btns { display: flex; gap: 10px; margin-top: 12px; }
+.modal-btns .btn { font-size: 0.95em; padding: 11px; }
+.code-hint { background: rgba(0,0,0,0.4); border-radius: 6px; padding: 8px 10px; font-family: monospace; font-size: 0.78em; color: #9fe; margin: 6px 0; word-break: break-all; }
+@media (max-width: 600px) {
+    .player-row input[type="number"] { width: 90px; }
+    .lb-top3 { flex-direction: column; }
+    h1 { font-size: 1.4em; }
+    th, td { font-size: 0.8em; padding: 9px 3px; }
+}
+</style>
 </head>
 <body>
-    <div class="container">
-        <h1>🃏 德州扑克赛季积分计算器</h1>
-        <p class="subtitle">输入每位玩家的最终筹码，自动计算名次和积分 · <a href="rules.html" style="color:#64b5f6; text-decoration:none;">📖 查看完整规则</a></p>
+<div class="container">
+    <h1>🃏 德州扑克赛季积分系统</h1>
+    <p class="subtitle">2026赛季 · 积分 · 盈亏 · 双榜</p>
+    <div class="sync-status" id="syncStatus"></div>
 
-        <div class="card">
-            <h2>⚙️ 比赛设置</h2>
-            <div class="settings-row">
-                <div class="setting-group">
-                    <label>比赛模式</label>
-                    <select id="gameMode">
-                        <option value="short">短局（≤2小时）× 1.0</option>
-                        <option value="long">长局（>2小时）× 1.25</option>
-                    </select>
-                </div>
-            </div>
-        </div>
+    <div class="tabs">
+        <div class="tab active" onclick="switchTab('calc', this)">🎯 算分</div>
+        <div class="tab" onclick="switchTab('leaderboard', this)">🏆 排行榜</div>
+        <div class="tab" onclick="switchTab('profit', this)">💰 盈亏榜</div>
+        <div class="tab" onclick="switchTab('history', this)">📅 历史</div>
+    </div>
 
+    <!-- 算分面板 -->
+    <div class="panel active" id="panel-calc">
         <div class="card">
-            <h2>👥 玩家筹码</h2>
-            <p style="font-size:0.85em; color:#888; margin-bottom:12px;">输入每位玩家比赛结束时的筹码（出局玩家填 0）</p>
-            <div class="players-section" id="playersSection">
-                <!-- 动态生成 -->
+            <div class="formula-display">
+                单场积分 = 名次分 + 人数加成<br>
+                <span style="font-size:0.82em; color:#7799bb;">名次分 30/24/19/15/12/10/8/5 · 超5人每多1人前三名各+1</span>
             </div>
+            <div class="startchip-box">
+                <label>🎰 本场每人起始筹码：</label>
+                <input type="number" id="startChips" placeholder="如 1500" min="1" value="1500">
+                <span style="font-size:0.78em; color:#9575cd;">（平分的筹码数，用于算盈亏率）</span>
+            </div>
+            <h2>👥 输入本场玩家结束筹码</h2>
+            <p style="font-size:0.82em; color:#888; margin-bottom:10px;">填每位玩家结束时的筹码，出局填 0</p>
+            <div id="playersSection"></div>
             <button class="btn-add" onclick="addPlayer()">+ 添加玩家</button>
+            <button class="btn btn-primary" onclick="calculate()">🎯 计算本场积分与盈亏</button>
         </div>
-
-        <button class="btn-calculate" onclick="calculate()">🎯 计算积分</button>
 
         <div class="card results-card" id="resultsCard">
-            <h2>🏆 本场积分结果</h2>
-            <table class="result-table">
-                <thead>
-                    <tr>
-                        <th>名次</th>
-                        <th>玩家</th>
-                        <th>筹码</th>
-                        <th>基础分</th>
-                        <th>人数系数</th>
-                        <th>时长系数</th>
-                        <th>最终积分</th>
-                    </tr>
-                </thead>
+            <h2>🏆 本场结果</h2>
+            <table>
+                <thead><tr><th>名次</th><th>玩家</th><th>结束筹码</th><th>积分</th><th>盈亏</th><th>收益率</th></tr></thead>
                 <tbody id="resultsBody"></tbody>
             </table>
-            <div class="formula-note" id="formulaNote"></div>
+            <div class="note" id="formulaNote"></div>
+            <button class="btn btn-save" onclick="saveGame()">💾 保存本场</button>
         </div>
     </div>
 
-    <script>
-        const defaultPlayers = ['', '', '', '', '', ''];
-        
-        function init() {
-            const section = document.getElementById('playersSection');
-            section.innerHTML = '';
-            defaultPlayers.forEach((name, i) => {
-                addPlayerRow(section, name, i);
-            });
-        }
+    <!-- 排行榜面板 -->
+    <div class="panel" id="panel-leaderboard">
+        <div class="card">
+            <div class="sub-tabs">
+                <div class="sub-tab active" onclick="switchSubTab('award', this, 'lb')">🏆 夺奖榜</div>
+                <div class="sub-tab" onclick="switchSubTab('total', this, 'lb')">📊 总积分榜</div>
+            </div>
+            <div class="config-row">
+                <label>赛季总场次：<strong id="totalGamesDisplay">0</strong> 场</label>
+                <label>｜ 最佳N场 = 总场次 ×</label>
+                <input type="number" id="pctInput" value="60" min="10" max="100" step="5" onchange="renderLeaderboard()">
+                <label>% = <strong id="nDisplay">0</strong> 场</label>
+            </div>
+            <div class="sub-panel active" id="subpanel-award">
+                <div id="awardPodium"></div>
+                <table>
+                    <thead><tr><th>排名</th><th>玩家</th><th>夺奖分<br>(最佳N场)</th><th>采计/总场</th><th>达标</th></tr></thead>
+                    <tbody id="awardBody"></tbody>
+                </table>
+                <div class="note" id="awardNote"></div>
+            </div>
+            <div class="sub-panel" id="subpanel-total">
+                <table>
+                    <thead><tr><th>排名</th><th>玩家</th><th>总积分</th><th>场次</th><th>场均</th></tr></thead>
+                    <tbody id="totalBody"></tbody>
+                </table>
+                <div class="note">总积分榜把所有场次全累加，反映活跃度，仅供参考。年底礼物以「夺奖榜」为准。</div>
+            </div>
+        </div>
+    </div>
 
-        function addPlayerRow(container, name, index) {
-            const row = document.createElement('div');
-            row.className = 'player-row';
-            row.innerHTML = `
-                <div class="player-num">${index + 1}</div>
-                <input type="text" placeholder="玩家姓名" value="${name}" class="player-name">
-                <input type="number" placeholder="最终筹码" min="0" class="player-chips" value="">
-                <button class="btn-remove" onclick="removePlayer(this)" title="移除">×</button>
-            `;
-            container.appendChild(row);
-        }
+    <!-- 盈亏榜面板 -->
+    <div class="panel" id="panel-profit">
+        <div class="card">
+            <h2>💰 赛季盈亏榜</h2>
+            <p style="font-size:0.82em; color:#888; margin-bottom:6px;">不玩钱，纯比筹码盈亏。<span style="color:#ff5252">红=赚</span> / <span style="color:#4caf50">绿=亏</span>（按中国习惯）</p>
+            <div id="profitPodium"></div>
+            <table>
+                <thead><tr><th>排名</th><th>玩家</th><th>总收益率</th><th>累计盈亏</th><th>场次</th></tr></thead>
+                <tbody id="profitBody"></tbody>
+            </table>
+            <div class="note" id="profitNote"></div>
+        </div>
+    </div>
 
-        function addPlayer() {
-            const section = document.getElementById('playersSection');
-            const count = section.children.length;
-            addPlayerRow(section, '', count);
-            updateNumbers();
-        }
+    <!-- 历史面板 -->
+    <div class="panel" id="panel-history">
+        <div class="card">
+            <h2>📅 比赛历史记录</h2>
+            <div class="toolbar">
+                <button class="btn-tool" onclick="exportData()">📤 导出备份</button>
+                <button class="btn-tool" onclick="document.getElementById('importFile').click()">📥 导入</button>
+                <button class="btn-tool" onclick="openConfig()">☁️ 云端设置</button>
+                <button class="btn-tool danger" onclick="clearAll()">🗑️ 清空</button>
+                <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
+            </div>
+            <div id="historyList"></div>
+        </div>
+    </div>
+</div>
 
-        function removePlayer(btn) {
-            const section = document.getElementById('playersSection');
-            if (section.children.length <= 5) {
-                alert('最少需要5位玩家参赛！');
-                return;
-            }
-            btn.parentElement.remove();
-            updateNumbers();
-        }
+<!-- 云端配置弹窗 -->
+<div class="modal-mask" id="configModal">
+    <div class="modal">
+        <h3>☁️ 开启全员云端共享</h3>
+        <p>默认数据存在你自己的浏览器（本地模式）。想让<strong>所有人看到同一份、谁都能加记录</strong>，按下面步骤接入免费的 Firebase 数据库：</p>
+        <ol>
+            <li>打开 <span class="code-hint">console.firebase.google.com</span>，用谷歌账号登录，点「创建项目」（名字随意，关掉Google Analytics）</li>
+            <li>项目建好后，左侧菜单进「构建 → Realtime Database」，点「创建数据库」，地区选默认，规则选<strong>「以测试模式启动」</strong></li>
+            <li>点项目首页的 <strong>&lt;/&gt;</strong> 图标（添加Web应用），起个名注册，会得到一段 <span class="code-hint">firebaseConfig = {...}</span> 配置</li>
+            <li>把那段 <strong>{ ... } 大括号里的内容</strong>整段粘贴到下面（包含 apiKey、databaseURL 等）：</li>
+        </ol>
+        <textarea id="configInput" placeholder='粘贴形如：
+{
+  "apiKey": "AIza....",
+  "authDomain": "xxx.firebaseapp.com",
+  "databaseURL": "https://xxx.firebaseio.com",
+  "projectId": "xxx",
+  ...
+}'></textarea>
+        <p style="color:#ffa726; font-size:0.82em;">⚠️ 配置保存在你的浏览器里。要让朋友也连上同一个数据库，把这段配置发给他们，让他们也在自己的「云端设置」里粘一次即可。</p>
+        <div class="modal-btns">
+            <button class="btn btn-save" onclick="saveConfig()">连接云端</button>
+            <button class="btn" style="background:rgba(255,255,255,0.1)" onclick="closeConfig()">取消</button>
+        </div>
+        <div class="modal-btns" id="disconnectRow" style="display:none">
+            <button class="btn" style="background:rgba(244,67,54,0.2); color:#ef5350" onclick="disconnectCloud()">断开云端，改回本地</button>
+        </div>
+    </div>
+</div>
 
-        function updateNumbers() {
-            const rows = document.querySelectorAll('.player-row');
-            rows.forEach((row, i) => {
-                row.querySelector('.player-num').textContent = i + 1;
-            });
-        }
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+<script>
+const STORAGE_KEY = 'pokerSeasonData_v4';
+const CONFIG_KEY = 'pokerFirebaseConfig';
+const RANK_SCORES = { 1:30, 2:24, 3:19, 4:15, 5:12, 6:10, 7:8 };
+let gameData = { games: [] };
+let lastCalcResult = null;
+let cloudMode = false;
+let dbRef = null;
 
-        function getBaseScore(rank) {
-            const scores = { 1: 100, 2: 65, 3: 40, 4: 25, 5: 15 };
-            return scores[rank] || 10;
-        }
+// ========== 数据层（本地 / 云端） ==========
+function loadLocal() {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) { try { gameData = JSON.parse(raw); } catch(e) { gameData = { games: [] }; } }
+    if (!gameData.games) gameData.games = [];
+}
+function persist() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(gameData));
+    if (cloudMode && dbRef) dbRef.set(gameData);
+}
+function initCloud() {
+    const raw = localStorage.getItem(CONFIG_KEY);
+    if (!raw) { cloudMode = false; renderSyncStatus(); return; }
+    try {
+        const cfg = JSON.parse(raw);
+        if (!firebase.apps.length) firebase.initializeApp(cfg);
+        dbRef = firebase.database().ref('pokerSeason');
+        cloudMode = true;
+        dbRef.on('value', snap => {
+            const val = snap.val();
+            if (val && val.games) { gameData = val; }
+            else if (val === null) { dbRef.set(gameData); }
+            refreshCurrentView();
+        });
+    } catch(e) {
+        cloudMode = false;
+        alert('云端连接失败，已切回本地模式：' + e.message);
+    }
+    renderSyncStatus();
+}
+function renderSyncStatus() {
+    const el = document.getElementById('syncStatus');
+    if (cloudMode) el.innerHTML = '<span class="sync-pill sync-cloud">☁️ 云端共享中 · 所有人实时同步</span>';
+    else el.innerHTML = '<span class="sync-pill sync-local" onclick="openConfig()">📱 本地模式（仅本机可见）· 点此开启云端共享</span>';
+}
+function refreshCurrentView() {
+    if (document.getElementById('panel-leaderboard').classList.contains('active')) renderLeaderboard();
+    if (document.getElementById('panel-profit').classList.contains('active')) renderProfit();
+    if (document.getElementById('panel-history').classList.contains('active')) renderHistory();
+}
 
-        function getMedal(rank) {
-            if (rank === 1) return '🥇';
-            if (rank === 2) return '🥈';
-            if (rank === 3) return '🥉';
-            return `#${rank}`;
-        }
+// ========== 云端配置弹窗 ==========
+function openConfig() {
+    document.getElementById('configModal').classList.add('show');
+    const raw = localStorage.getItem(CONFIG_KEY);
+    document.getElementById('disconnectRow').style.display = raw ? 'flex' : 'none';
+    if (raw) document.getElementById('configInput').value = raw;
+}
+function closeConfig() { document.getElementById('configModal').classList.remove('show'); }
+function saveConfig() {
+    let txt = document.getElementById('configInput').value.trim();
+    if (!txt) { alert('请粘贴配置'); return; }
+    txt = txt.replace(/^const\s+firebaseConfig\s*=\s*/, '').replace(/;$/, '').trim();
+    try {
+        const cfg = (new Function('return (' + txt + ')'))();
+        if (!cfg.databaseURL) { alert('配置里缺少 databaseURL，请确认已开启 Realtime Database'); return; }
+        localStorage.setItem(CONFIG_KEY, JSON.stringify(cfg));
+        alert('✅ 配置已保存，即将连接云端');
+        location.reload();
+    } catch(e) { alert('配置格式不对，请直接粘贴 { } 里的内容：' + e.message); }
+}
+function disconnectCloud() {
+    if (!confirm('断开云端后改用本地模式，云端数据不会删除。确定？')) return;
+    localStorage.removeItem(CONFIG_KEY);
+    location.reload();
+}
 
-        function calculate() {
-            const rows = document.querySelectorAll('.player-row');
-            const players = [];
-            
-            rows.forEach((row, i) => {
-                const name = row.querySelector('.player-name').value.trim() || `玩家${i + 1}`;
-                const chips = parseInt(row.querySelector('.player-chips').value) || 0;
-                players.push({ name, chips });
-            });
+// ========== 标签切换 ==========
+function switchTab(tab, el) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    el.classList.add('active');
+    document.getElementById('panel-' + tab).classList.add('active');
+    if (tab === 'leaderboard') renderLeaderboard();
+    if (tab === 'profit') renderProfit();
+    if (tab === 'history') renderHistory();
+}
+function switchSubTab(sub, el, group) {
+    document.querySelectorAll('.sub-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.sub-panel').forEach(p => p.classList.remove('active'));
+    el.classList.add('active');
+    document.getElementById('subpanel-' + sub).classList.add('active');
+}
 
-            if (players.length < 5) {
-                alert('至少需要5位玩家！');
-                return;
-            }
+// ========== 算分 ==========
+function init() {
+    const section = document.getElementById('playersSection');
+    section.innerHTML = '';
+    for (let i = 0; i < 6; i++) addPlayerRow(section, '', i);
+}
+function addPlayerRow(container, name, index) {
+    const row = document.createElement('div');
+    row.className = 'player-row';
+    row.innerHTML = `
+        <div class="player-num">${index + 1}</div>
+        <input type="text" placeholder="玩家姓名" value="${name}" class="player-name">
+        <input type="number" placeholder="结束筹码" min="0" class="player-chips">
+        <button class="btn-remove" onclick="removePlayer(this)">×</button>`;
+    container.appendChild(row);
+}
+function addPlayer() {
+    const section = document.getElementById('playersSection');
+    addPlayerRow(section, '', section.children.length);
+    updateNumbers();
+}
+function removePlayer(btn) {
+    const section = document.getElementById('playersSection');
+    if (section.children.length <= 5) { alert('最少需要5位玩家参赛！'); return; }
+    btn.parentElement.remove();
+    updateNumbers();
+}
+function updateNumbers() {
+    document.querySelectorAll('#playersSection .player-row').forEach((row, i) => {
+        row.querySelector('.player-num').textContent = i + 1;
+    });
+}
+function getRankScore(rank) { return RANK_SCORES[rank] || 5; }
+function getMedal(rank) {
+    if (rank === 1) return '🥇';
+    if (rank === 2) return '🥈';
+    if (rank === 3) return '🥉';
+    return '#' + rank;
+}
+function fmtProfit(v) {
+    const cls = v > 0 ? 'profit-pos' : (v < 0 ? 'profit-neg' : '');
+    const sign = v > 0 ? '+' : '';
+    return `<span class="${cls}">${sign}${v.toLocaleString()}</span>`;
+}
+function fmtRate(v) {
+    const cls = v > 0 ? 'profit-pos' : (v < 0 ? 'profit-neg' : '');
+    const sign = v > 0 ? '+' : '';
+    return `<span class="${cls}">${sign}${v.toFixed(1)}%</span>`;
+}
+function calculate() {
+    const startChips = parseInt(document.getElementById('startChips').value) || 0;
+    if (startChips <= 0) { alert('请先填写本场「每人起始筹码」！'); return; }
+    const rows = document.querySelectorAll('#playersSection .player-row');
+    const players = [];
+    rows.forEach((row, i) => {
+        const name = row.querySelector('.player-name').value.trim() || `玩家${i + 1}`;
+        const chips = parseInt(row.querySelector('.player-chips').value) || 0;
+        players.push({ name, chips });
+    });
+    if (players.length < 5) { alert('至少需要5位玩家！'); return; }
+    if (players.reduce((s, p) => s + p.chips, 0) === 0) { alert('请输入至少一位玩家的结束筹码！'); return; }
 
-            // 检查是否有至少一个人有筹码
-            const totalChips = players.reduce((sum, p) => sum + p.chips, 0);
-            if (totalChips === 0) {
-                alert('请输入至少一位玩家的筹码数！');
-                return;
-            }
+    const sorted = [...players].sort((a, b) => b.chips - a.chips);
+    let currentRank = 1;
+    sorted.forEach((p, i) => {
+        if (i > 0 && p.chips < sorted[i - 1].chips) currentRank = i + 1;
+        p.rank = currentRank;
+    });
+    const total = players.length;
+    const bonus = Math.max(0, total - 5);
+    sorted.forEach(p => {
+        p.rankScore = getRankScore(p.rank);
+        p.bonus = (p.rank <= 3) ? bonus : 0;
+        p.score = p.rankScore + p.bonus;
+        p.profit = p.chips - startChips;
+        p.profitRate = (p.profit / startChips) * 100;
+    });
 
-            // 按筹码排序（筹码多的名次高）
-            const sorted = [...players].sort((a, b) => b.chips - a.chips);
-            
-            // 分配名次（相同筹码相同名次）
-            let currentRank = 1;
-            sorted.forEach((p, i) => {
-                if (i > 0 && p.chips < sorted[i - 1].chips) {
-                    currentRank = i + 1;
+    lastCalcResult = {
+        startChips,
+        playerCount: total,
+        players: sorted.map(p => ({ name: p.name, chips: p.chips, rank: p.rank, rankScore: p.rankScore, bonus: p.bonus, score: p.score, profit: p.profit, profitRate: p.profitRate }))
+    };
+
+    const tbody = document.getElementById('resultsBody');
+    tbody.innerHTML = '';
+    sorted.forEach(p => {
+        const rc = p.rank <= 3 ? `rank-${p.rank}` : '';
+        const tag = p.chips === 0 ? '<span class="tag tag-out">出局</span>' : (p.rank === 1 ? '<span class="tag tag-win">冠军</span>' : '');
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td class="${rc}"><span class="medal">${getMedal(p.rank)}</span></td>
+            <td>${p.name} ${tag}</td><td>${p.chips.toLocaleString()}</td>
+            <td class="score-hl">${p.score}</td><td>${fmtProfit(p.profit)}</td><td>${fmtRate(p.profitRate)}</td>`;
+        tbody.appendChild(tr);
+    });
+    document.getElementById('formulaNote').innerHTML =
+        `<strong>本场 ${total} 人，每人起始 ${startChips.toLocaleString()} 筹码。</strong>积分=名次分+人数加成（超5人前三各+${bonus}）。盈亏=结束筹码−起始，收益率=盈亏÷起始。<br>桌上盈亏总和应为0（有人赚必有人亏）。`;
+    const card = document.getElementById('resultsCard');
+    card.classList.add('show');
+    card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function saveGame() {
+    if (!lastCalcResult) return;
+    const now = new Date();
+    const dateStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+    gameData.games.push({ id: Date.now(), date: dateStr, playerCount: lastCalcResult.playerCount, startChips: lastCalcResult.startChips, players: lastCalcResult.players });
+    persist();
+    alert(cloudMode ? '✅ 已保存到云端，所有人都能看到！' : '✅ 已保存！可在各榜单查看');
+    lastCalcResult = null;
+    document.getElementById('resultsCard').classList.remove('show');
+    init();
+}
+
+// ========== 排行榜 ==========
+function getPlayerScores() {
+    const map = {};
+    gameData.games.forEach(g => {
+        g.players.forEach(p => {
+            if (!map[p.name]) map[p.name] = [];
+            map[p.name].push(p.score);
+        });
+    });
+    return map;
+}
+function renderLeaderboard() {
+    const totalGames = gameData.games.length;
+    const pct = parseInt(document.getElementById('pctInput').value) || 60;
+    const N = Math.max(1, Math.ceil(totalGames * pct / 100));
+    const threshold = Math.floor(totalGames * 0.3);
+    document.getElementById('totalGamesDisplay').textContent = totalGames;
+    document.getElementById('nDisplay').textContent = N;
+
+    const scoreMap = getPlayerScores();
+    const names = Object.keys(scoreMap);
+    if (names.length === 0) {
+        document.getElementById('awardPodium').innerHTML = '';
+        document.getElementById('awardBody').innerHTML = '<tr><td colspan="5" class="empty">还没有记录 🎲</td></tr>';
+        document.getElementById('totalBody').innerHTML = '<tr><td colspan="5" class="empty">暂无数据</td></tr>';
+        document.getElementById('awardNote').innerHTML = '';
+        return;
+    }
+    const stats = names.map(name => {
+        const scores = [...scoreMap[name]].sort((a, b) => b - a);
+        const count = scores.length;
+        const kept = scores.slice(0, N);
+        return { name, count, awardScore: kept.reduce((s,x)=>s+x,0), totalScore: scores.reduce((s,x)=>s+x,0), avg: scores.reduce((s,x)=>s+x,0)/count, keptCount: kept.length };
+    });
+    const award = [...stats].sort((a, b) => b.awardScore - a.awardScore);
+    document.getElementById('awardPodium').innerHTML = podiumHTML(award, 'awardScore');
+    const awardBody = document.getElementById('awardBody');
+    awardBody.innerHTML = '';
+    award.forEach((p, i) => {
+        const qualified = p.count >= threshold;
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td class="${i<3?'rank-'+(i+1):''}">${i+1}</td><td>${p.name}</td>
+            <td class="score-hl">${p.awardScore}</td><td><span class="count-badge">${p.keptCount}/${p.count}</span></td>
+            <td>${qualified?'<span style="color:#66bb6a">✅</span>':'<span style="color:#ef5350">❌</span>'}</td>`;
+        awardBody.appendChild(tr);
+    });
+    document.getElementById('awardNote').innerHTML =
+        `共 ${totalGames} 场 · 夺奖分 = 每人<strong>最好的 ${N} 场</strong>之和 · 达标门槛：参赛 ≥ ${threshold} 场 · <strong style="color:#90caf9">年底礼物归夺奖榜第1名 🎁</strong>`;
+
+    const totalArr = [...stats].sort((a, b) => b.totalScore - a.totalScore);
+    const totalBody = document.getElementById('totalBody');
+    totalBody.innerHTML = '';
+    totalArr.forEach((p, i) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td class="${i<3?'rank-'+(i+1):''}">${i+1}</td><td>${p.name}</td>
+            <td class="score-hl">${p.totalScore}</td><td>${p.count}</td><td>${p.avg.toFixed(1)}</td>`;
+        totalBody.appendChild(tr);
+    });
+}
+function podiumHTML(arr, key) {
+    return '<div class="lb-top3">' + [1,0,2].map(idx => {
+        const p = arr[idx];
+        if (!p) return '<div style="flex:1"></div>';
+        const cls = idx===0?'p1':(idx===1?'p2':'p3');
+        const medal = idx===0?'🥇':(idx===1?'🥈':'🥉');
+        let val = p[key];
+        if (key === 'rate') val = (val>0?'+':'') + val.toFixed(1) + '%';
+        return `<div class="lb-podium ${cls}"><div style="font-size:1.6em">${medal}</div><div class="name">${p.name}</div><div class="pts">${val}</div><div style="font-size:0.75em;color:#888">${p.count}场</div></div>`;
+    }).join('') + '</div>';
+}
+
+// ========== 盈亏榜 ==========
+function renderProfit() {
+    const map = {};
+    gameData.games.forEach(g => {
+        g.players.forEach(p => {
+            if (!map[p.name]) map[p.name] = { name: p.name, totalProfit: 0, totalStart: 0, count: 0 };
+            map[p.name].totalProfit += (p.profit || 0);
+            map[p.name].totalStart += (g.startChips || 0);
+            map[p.name].count += 1;
+        });
+    });
+    const arr = Object.values(map);
+    arr.forEach(p => { p.rate = p.totalStart > 0 ? (p.totalProfit / p.totalStart * 100) : 0; });
+    arr.sort((a, b) => b.rate - a.rate);
+
+    if (arr.length === 0) {
+        document.getElementById('profitPodium').innerHTML = '';
+        document.getElementById('profitBody').innerHTML = '<tr><td colspan="5" class="empty">还没有盈亏数据 🎲</td></tr>';
+        document.getElementById('profitNote').innerHTML = '';
+        return;
+    }
+    document.getElementById('profitPodium').innerHTML = podiumHTML(arr, 'rate');
+    const tbody = document.getElementById('profitBody');
+    tbody.innerHTML = '';
+    arr.forEach((p, i) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `<td class="${i<3?'rank-'+(i+1):''}">${i+1}</td><td>${p.name}</td>
+            <td>${fmtRate(p.rate)}</td><td>${fmtProfit(p.totalProfit)}</td><td>${p.count}</td>`;
+        tbody.appendChild(tr);
+    });
+    document.getElementById('profitNote').innerHTML =
+        `总收益率 = 累计盈亏 ÷ 累计起始筹码 × 100% · <span style="color:#ff5252">红=总赚</span>，<span style="color:#4caf50">绿=总亏</span> · 全员盈亏总和应趋近0（零和游戏）`;
+}
+
+// ========== 历史 ==========
+function renderHistory() {
+    const list = document.getElementById('historyList');
+    if (gameData.games.length === 0) { list.innerHTML = '<div class="empty">还没有比赛记录 🎲</div>'; return; }
+    list.innerHTML = '';
+    [...gameData.games].reverse().forEach(g => {
+        const item = document.createElement('div');
+        item.className = 'history-item';
+        const sorted = [...g.players].sort((a,b) => a.rank - b.rank);
+        const resultStr = sorted.map(p => {
+            const m = p.rank===1?'🥇':(p.rank===2?'🥈':(p.rank===3?'🥉':`${p.rank}.`));
+            const cls = p.rank===1?'h-win':'';
+            const pr = (p.profit!==undefined) ? ` <span style="font-size:0.85em">${(p.profit>0?'+':'')}${p.profit}</span>` : '';
+            return `<span class="${cls}">${m} ${p.name} (${p.score}分${pr})</span>`;
+        }).join(' · ');
+        item.innerHTML = `
+            <div class="history-head">
+                <span class="history-date">📅 ${g.date}</span>
+                <span><span class="history-meta">${g.playerCount}人 · 起始${(g.startChips||0).toLocaleString()}</span>
+                <button class="btn-del-history" onclick="deleteGame(${g.id})">删除</button></span>
+            </div>
+            <div class="history-result">${resultStr}</div>`;
+        list.appendChild(item);
+    });
+}
+function deleteGame(id) {
+    if (!confirm('确定删除这场记录吗？' + (cloudMode ? '（会同步删除云端）' : ''))) return;
+    gameData.games = gameData.games.filter(g => g.id !== id);
+    persist();
+    renderHistory();
+}
+
+// ========== 导入导出 / 清空 ==========
+function exportData() {
+    const blob = new Blob([JSON.stringify(gameData, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = `德州扑克积分备份_${new Date().toISOString().slice(0,10)}.json`;
+    a.click(); URL.revokeObjectURL(url);
+}
+function importData(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+        try {
+            const data = JSON.parse(e.target.result);
+            if (data.games && Array.isArray(data.games)) {
+                if (confirm(`导入 ${data.games.length} 场记录？这将覆盖当前数据。`)) {
+                    gameData = data; persist(); renderHistory();
+                    alert('✅ 导入成功！');
                 }
-                p.rank = currentRank;
-            });
+            } else alert('文件格式不对');
+        } catch(err) { alert('文件读取失败'); }
+    };
+    reader.readAsText(file);
+    event.target.value = '';
+}
+function clearAll() {
+    if (!confirm('⚠️ 确定清空全部记录吗？此操作不可恢复！建议先导出备份。')) return;
+    if (!confirm('再确认一次：真的要删除所有比赛记录吗？')) return;
+    gameData = { games: [] };
+    persist();
+    renderHistory();
+    alert('已清空');
+}
 
-            const playerCount = players.length;
-            const peopleFactor = 1 + (playerCount - 5) * 0.1;
-            const mode = document.getElementById('gameMode').value;
-            const timeFactor = mode === 'long' ? 1.25 : 1.0;
-
-            // 计算积分
-            sorted.forEach(p => {
-                p.baseScore = getBaseScore(p.rank);
-                p.finalScore = Math.round(p.baseScore * peopleFactor * timeFactor * 10) / 10;
-            });
-
-            // 渲染结果
-            const tbody = document.getElementById('resultsBody');
-            tbody.innerHTML = '';
-            sorted.forEach(p => {
-                const rankClass = p.rank <= 3 ? `rank-${p.rank}` : '';
-                const tag = p.chips === 0 ? '<span class="eliminated-tag">已出局</span>' : 
-                           (p.rank === 1 ? '<span class="winner-tag">冠军</span>' : '');
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td class="${rankClass}"><span class="medal">${getMedal(p.rank)}</span></td>
-                    <td>${p.name} ${tag}</td>
-                    <td>${p.chips.toLocaleString()}</td>
-                    <td>${p.baseScore}</td>
-                    <td>×${peopleFactor.toFixed(1)}</td>
-                    <td>×${timeFactor.toFixed(2)}</td>
-                    <td class="score-highlight">${p.finalScore}</td>
-                `;
-                tbody.appendChild(tr);
-            });
-
-            document.getElementById('formulaNote').innerHTML = `
-                <strong>计算公式：</strong>单场积分 = 基础名次分 × 人数系数 × 时长系数<br>
-                本场参数：${playerCount}人局（人数系数 ×${peopleFactor.toFixed(1)}）| ${mode === 'long' ? '长局' : '短局'}（时长系数 ×${timeFactor.toFixed(2)}）<br>
-                名次规则：筹码多者排名高，筹码为0视为已出局（按输入顺序排在最后）
-            `;
-
-            const card = document.getElementById('resultsCard');
-            card.classList.add('show');
-            card.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-
-        init();
-    </script>
+// ========== 启动 ==========
+loadLocal();
+init();
+initCloud();
+</script>
 </body>
 </html>
