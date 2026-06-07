@@ -108,19 +108,52 @@ td { padding: 11px 5px; text-align: center; border-bottom: 1px solid rgba(255,25
     h1 { font-size: 1.4em; }
     th, td { font-size: 0.8em; padding: 9px 3px; }
 }
+.event-name-box { background: rgba(100,181,246,0.1); border: 1px solid rgba(100,181,246,0.25); border-radius: 10px; padding: 12px 14px; margin-bottom: 14px; }
+.event-name-box label { font-size: 0.92em; color: #90caf9; display: block; margin-bottom: 8px; }
+.event-name-box input { width: 100%; }
+.roster-box { margin-bottom: 12px; }
+.roster-label { font-size: 0.85em; color: #9575cd; margin-bottom: 8px; }
+.roster-tags { display: flex; flex-wrap: wrap; gap: 8px; }
+.roster-tag { padding: 6px 14px; background: rgba(149,117,205,0.15); border: 1px solid rgba(149,117,205,0.35); border-radius: 16px; color: #b39ddb; font-size: 0.88em; cursor: pointer; transition: all 0.15s; user-select: none; }
+.roster-tag:hover { background: rgba(149,117,205,0.3); transform: translateY(-1px); }
+.roster-tag.used { opacity: 0.35; cursor: default; pointer-events: none; }
+.roster-tag .del-x { margin-left: 6px; color: #ef5350; font-weight: 700; opacity: 0.5; }
+.roster-tag .del-x:hover { opacity: 1; }
+.roster-empty { font-size: 0.82em; color: #667; }
+.season-filter { display: none; align-items: center; gap: 10px; margin-bottom: 16px; padding: 10px 14px; background: rgba(0,0,0,0.2); border-radius: 10px; font-size: 0.88em; color: #aaa; }
+.season-filter.show { display: flex; }
+.season-filter select { flex: 1; min-width: 120px; }
+.stat-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin: 14px 0; }
+.stat-cell { background: rgba(0,0,0,0.25); border-radius: 10px; padding: 14px; text-align: center; }
+.stat-cell .v { font-size: 1.5em; font-weight: 700; color: #4fc3f7; }
+.stat-cell .l { font-size: 0.78em; color: #888; margin-top: 4px; }
+.stat-games { margin-top: 14px; }
+.stat-game-row { display: flex; justify-content: space-between; align-items: center; padding: 9px 12px; background: rgba(0,0,0,0.18); border-radius: 8px; margin-bottom: 6px; font-size: 0.85em; }
+.edit-modal-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.edit-modal-row span { width: 28px; color: #888; font-size: 0.85em; }
+.edit-modal-row input[type=text] { flex: 1; }
+.edit-modal-row input[type=number] { width: 100px; }
+.btn-edit-history { background: none; border: none; color: #64b5f6; cursor: pointer; font-size: 0.8em; opacity: 0.7; margin-right: 6px; }
+.btn-edit-history:hover { opacity: 1; }
 </style>
 </head>
 <body>
 <div class="container">
     <h1>🃏 德州扑克赛季积分系统</h1>
-    <p class="subtitle">2026赛季 · 积分 · 盈亏 · 双榜</p>
+    <p class="subtitle">2026赛季 · 积分 · 盈亏 · 双榜 · <span id="verTag" style="opacity:0.7"></span></p>
     <div class="sync-status" id="syncStatus"></div>
 
     <div class="tabs">
         <div class="tab active" onclick="switchTab('calc', this)">🎯 算分</div>
         <div class="tab" onclick="switchTab('leaderboard', this)">🏆 排行榜</div>
         <div class="tab" onclick="switchTab('profit', this)">💰 盈亏榜</div>
+        <div class="tab" onclick="switchTab('stats', this)">👤 战绩</div>
         <div class="tab" onclick="switchTab('history', this)">📅 历史</div>
+    </div>
+
+    <div class="season-filter" id="seasonFilterBar">
+        <label>📅 统计范围：</label>
+        <select id="seasonSelect" onchange="onSeasonChange()"><option value="all">全部赛季</option></select>
     </div>
 
     <!-- 算分面板 -->
@@ -130,12 +163,20 @@ td { padding: 11px 5px; text-align: center; border-bottom: 1px solid rgba(255,25
                 单场积分 = 名次分 + 人数加成<br>
                 <span style="font-size:0.82em; color:#7799bb;">名次分 30/24/19/15/12/10/8/5 · 超5人每多1人前三名各+1</span>
             </div>
+            <div class="event-name-box">
+                <label>🏷️ 本场赛事名称（可选）</label>
+                <input type="text" id="eventName" placeholder="如：周五夜战 / 老王生日局（留空则用日期）">
+            </div>
             <div class="startchip-box">
                 <label>🎰 本场每人起始筹码：</label>
                 <input type="number" id="startChips" placeholder="如 1500" min="1" value="1500">
                 <span style="font-size:0.78em; color:#9575cd;">（平分的筹码数，用于算盈亏率）</span>
             </div>
             <h2>👥 输入本场玩家结束筹码</h2>
+            <div class="roster-box" id="rosterBox">
+                <div class="roster-label">👆 点击常用玩家，快速填入空行：</div>
+                <div class="roster-tags" id="rosterTags"></div>
+            </div>
             <p style="font-size:0.82em; color:#888; margin-bottom:10px;">填每位玩家结束时的筹码，出局填 0</p>
             <div id="playersSection"></div>
             <button class="btn-add" onclick="addPlayer()">+ 添加玩家</button>
@@ -198,6 +239,18 @@ td { padding: 11px 5px; text-align: center; border-bottom: 1px solid rgba(255,25
         </div>
     </div>
 
+    <!-- 战绩面板 -->
+    <div class="panel" id="panel-stats">
+        <div class="card">
+            <h2>👤 玩家个人战绩</h2>
+            <div class="config-row">
+                <label>选择玩家：</label>
+                <select id="statsPlayerSelect" onchange="renderStats()" style="flex:1; min-width:140px;"></select>
+            </div>
+            <div id="statsContent"></div>
+        </div>
+    </div>
+
     <!-- 历史面板 -->
     <div class="panel" id="panel-history">
         <div class="card">
@@ -244,16 +297,40 @@ td { padding: 11px 5px; text-align: center; border-bottom: 1px solid rgba(255,25
     </div>
 </div>
 
+<!-- 编辑记录弹窗 -->
+<div class="modal-mask" id="editModal">
+    <div class="modal">
+        <h3>✏️ 编辑这场记录</h3>
+        <div class="edit-modal-row">
+            <span>名称</span>
+            <input type="text" id="editEventName" placeholder="赛事名称（可选）" style="flex:1">
+        </div>
+        <div class="edit-modal-row">
+            <span>底注</span>
+            <input type="number" id="editStartChips" placeholder="每人起始筹码" min="1" style="flex:1">
+        </div>
+        <p style="color:#90caf9; font-size:0.85em; margin:10px 0 6px;">各玩家姓名与结束筹码（改完自动重算名次和积分）：</p>
+        <div id="editPlayers"></div>
+        <p style="color:#ffa726; font-size:0.8em; margin-top:8px;">⚠️ 改完会重新计算名次、积分和盈亏。</p>
+        <div class="modal-btns">
+            <button class="btn btn-save" onclick="saveEdit()">保存修改</button>
+            <button class="btn" style="background:rgba(255,255,255,0.1)" onclick="closeEdit()">取消</button>
+        </div>
+    </div>
+</div>
+
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 <script>
 const STORAGE_KEY = 'pokerSeasonData_v4';
 const CONFIG_KEY = 'pokerFirebaseConfig';
+const APP_VERSION = 'v2.1';
 const RANK_SCORES = { 1:30, 2:24, 3:19, 4:15, 5:12, 6:10, 7:8 };
 let gameData = { games: [] };
 let lastCalcResult = null;
 let cloudMode = false;
 let dbRef = null;
+let editingGameId = null;
 
 // ========== 数据层（本地 / 云端） ==========
 function loadLocal() {
@@ -291,9 +368,37 @@ function renderSyncStatus() {
     else el.innerHTML = '<span class="sync-pill sync-local" onclick="openConfig()">📱 本地模式（仅本机可见）· 点此开启云端共享</span>';
 }
 function refreshCurrentView() {
+    rebuildSeasonOptions();
     if (document.getElementById('panel-leaderboard').classList.contains('active')) renderLeaderboard();
     if (document.getElementById('panel-profit').classList.contains('active')) renderProfit();
+    if (document.getElementById('panel-stats').classList.contains('active')) { rebuildStatsPlayers(); renderStats(); }
     if (document.getElementById('panel-history').classList.contains('active')) renderHistory();
+    renderRoster();
+}
+
+// ========== 赛季筛选 ==========
+function gameSeason(g) {
+    const y = (g.date || '').slice(0, 4);
+    return y || '其他';
+}
+function rebuildSeasonOptions() {
+    const sel = document.getElementById('seasonSelect');
+    if (!sel) return;
+    const cur = sel.value;
+    const years = [...new Set(gameData.games.map(gameSeason))].sort().reverse();
+    sel.innerHTML = '<option value="all">全部赛季</option>' + years.map(y => `<option value="${y}">${y} 赛季</option>`).join('');
+    if ([...sel.options].some(o => o.value === cur)) sel.value = cur;
+}
+function filteredGames() {
+    const sel = document.getElementById('seasonSelect');
+    const v = sel ? sel.value : 'all';
+    if (!v || v === 'all') return gameData.games;
+    return gameData.games.filter(g => gameSeason(g) === v);
+}
+function onSeasonChange() {
+    if (document.getElementById('panel-leaderboard').classList.contains('active')) renderLeaderboard();
+    if (document.getElementById('panel-profit').classList.contains('active')) renderProfit();
+    if (document.getElementById('panel-stats').classList.contains('active')) renderStats();
 }
 
 // ========== 云端配置弹窗 ==========
@@ -328,8 +433,12 @@ function switchTab(tab, el) {
     document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
     el.classList.add('active');
     document.getElementById('panel-' + tab).classList.add('active');
+    const showFilter = ['leaderboard', 'profit', 'stats'].includes(tab);
+    document.getElementById('seasonFilterBar').classList.toggle('show', showFilter);
+    if (showFilter) rebuildSeasonOptions();
     if (tab === 'leaderboard') renderLeaderboard();
     if (tab === 'profit') renderProfit();
+    if (tab === 'stats') { rebuildStatsPlayers(); renderStats(); }
     if (tab === 'history') renderHistory();
 }
 function switchSubTab(sub, el, group) {
@@ -344,13 +453,14 @@ function init() {
     const section = document.getElementById('playersSection');
     section.innerHTML = '';
     for (let i = 0; i < 6; i++) addPlayerRow(section, '', i);
+    renderRoster();
 }
 function addPlayerRow(container, name, index) {
     const row = document.createElement('div');
     row.className = 'player-row';
     row.innerHTML = `
         <div class="player-num">${index + 1}</div>
-        <input type="text" placeholder="玩家姓名" value="${name}" class="player-name">
+        <input type="text" placeholder="玩家姓名" value="${name}" class="player-name" oninput="renderRoster()">
         <input type="number" placeholder="结束筹码" min="0" class="player-chips">
         <button class="btn-remove" onclick="removePlayer(this)">×</button>`;
     container.appendChild(row);
@@ -365,13 +475,75 @@ function removePlayer(btn) {
     if (section.children.length <= 5) { alert('最少需要5位玩家参赛！'); return; }
     btn.parentElement.remove();
     updateNumbers();
+    renderRoster();
 }
 function updateNumbers() {
     document.querySelectorAll('#playersSection .player-row').forEach((row, i) => {
         row.querySelector('.player-num').textContent = i + 1;
     });
 }
+
+// ========== 玩家名册 ==========
+function getRoster() {
+    const set = new Set();
+    if (Array.isArray(gameData.roster)) gameData.roster.forEach(n => set.add(n));
+    gameData.games.forEach(g => g.players.forEach(p => set.add(p.name)));
+    return [...set].sort((a, b) => a.localeCompare(b, 'zh'));
+}
+function currentNames() {
+    return [...document.querySelectorAll('#playersSection .player-name')].map(i => i.value.trim()).filter(Boolean);
+}
+function renderRoster() {
+    const box = document.getElementById('rosterTags');
+    const roster = getRoster();
+    if (roster.length === 0) {
+        box.innerHTML = '<span class="roster-empty">还没有常用玩家，保存几场后这里会自动出现可点选的名字。</span>';
+        return;
+    }
+    const used = new Set(currentNames());
+    box.innerHTML = roster.map(name => {
+        const isUsed = used.has(name);
+        return `<span class="roster-tag ${isUsed?'used':''}" onclick="pickPlayer('${encodeURIComponent(name)}')">${name}<span class="del-x" onclick="event.stopPropagation();removeFromRoster('${encodeURIComponent(name)}')">×</span></span>`;
+    }).join('');
+}
+function pickPlayer(enc) {
+    const name = decodeURIComponent(enc);
+    if (currentNames().includes(name)) return;
+    let target = [...document.querySelectorAll('#playersSection .player-row')]
+        .find(row => !row.querySelector('.player-name').value.trim());
+    if (!target) { addPlayer(); const rows = document.querySelectorAll('#playersSection .player-row'); target = rows[rows.length - 1]; }
+    target.querySelector('.player-name').value = name;
+    renderRoster();
+}
+function removeFromRoster(enc) {
+    const name = decodeURIComponent(enc);
+    if (!confirm(`把「${name}」从常用名册移除？（已保存的历史记录不受影响）`)) return;
+    if (!Array.isArray(gameData.roster)) {
+        gameData.roster = getRoster();
+    }
+    gameData.roster = gameData.roster.filter(n => n !== name);
+    persist();
+    renderRoster();
+}
 function getRankScore(rank) { return RANK_SCORES[rank] || 5; }
+function scoreGame(rawPlayers, startChips) {
+    const sorted = [...rawPlayers].sort((a, b) => b.chips - a.chips);
+    let currentRank = 1;
+    sorted.forEach((p, i) => {
+        if (i > 0 && p.chips < sorted[i - 1].chips) currentRank = i + 1;
+        p.rank = currentRank;
+    });
+    const total = sorted.length;
+    const bonus = Math.max(0, total - 5);
+    sorted.forEach(p => {
+        p.rankScore = getRankScore(p.rank);
+        p.bonus = (p.rank <= 3) ? bonus : 0;
+        p.score = p.rankScore + p.bonus;
+        p.profit = p.chips - startChips;
+        p.profitRate = startChips > 0 ? (p.profit / startChips) * 100 : 0;
+    });
+    return sorted;
+}
 function getMedal(rank) {
     if (rank === 1) return '🥇';
     if (rank === 2) return '🥈';
@@ -401,23 +573,12 @@ function calculate() {
     if (players.length < 5) { alert('至少需要5位玩家！'); return; }
     if (players.reduce((s, p) => s + p.chips, 0) === 0) { alert('请输入至少一位玩家的结束筹码！'); return; }
 
-    const sorted = [...players].sort((a, b) => b.chips - a.chips);
-    let currentRank = 1;
-    sorted.forEach((p, i) => {
-        if (i > 0 && p.chips < sorted[i - 1].chips) currentRank = i + 1;
-        p.rank = currentRank;
-    });
+    const sorted = scoreGame(players, startChips);
     const total = players.length;
     const bonus = Math.max(0, total - 5);
-    sorted.forEach(p => {
-        p.rankScore = getRankScore(p.rank);
-        p.bonus = (p.rank <= 3) ? bonus : 0;
-        p.score = p.rankScore + p.bonus;
-        p.profit = p.chips - startChips;
-        p.profitRate = (p.profit / startChips) * 100;
-    });
 
     lastCalcResult = {
+        eventName: document.getElementById('eventName').value.trim(),
         startChips,
         playerCount: total,
         players: sorted.map(p => ({ name: p.name, chips: p.chips, rank: p.rank, rankScore: p.rankScore, bonus: p.bonus, score: p.score, profit: p.profit, profitRate: p.profitRate }))
@@ -445,18 +606,21 @@ function saveGame() {
     if (!lastCalcResult) return;
     const now = new Date();
     const dateStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')} ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
-    gameData.games.push({ id: Date.now(), date: dateStr, playerCount: lastCalcResult.playerCount, startChips: lastCalcResult.startChips, players: lastCalcResult.players });
+    gameData.games.push({ id: Date.now(), date: dateStr, eventName: lastCalcResult.eventName || '', playerCount: lastCalcResult.playerCount, startChips: lastCalcResult.startChips, players: lastCalcResult.players });
+    if (!Array.isArray(gameData.roster)) gameData.roster = [];
+    lastCalcResult.players.forEach(p => { if (!gameData.roster.includes(p.name)) gameData.roster.push(p.name); });
     persist();
     alert(cloudMode ? '✅ 已保存到云端，所有人都能看到！' : '✅ 已保存！可在各榜单查看');
     lastCalcResult = null;
     document.getElementById('resultsCard').classList.remove('show');
+    document.getElementById('eventName').value = '';
     init();
 }
 
 // ========== 排行榜 ==========
 function getPlayerScores() {
     const map = {};
-    gameData.games.forEach(g => {
+    filteredGames().forEach(g => {
         g.players.forEach(p => {
             if (!map[p.name]) map[p.name] = [];
             map[p.name].push(p.score);
@@ -465,7 +629,7 @@ function getPlayerScores() {
     return map;
 }
 function renderLeaderboard() {
-    const totalGames = gameData.games.length;
+    const totalGames = filteredGames().length;
     const pct = parseInt(document.getElementById('pctInput').value) || 60;
     const N = Math.max(1, Math.ceil(totalGames * pct / 100));
     const threshold = Math.floor(totalGames * 0.3);
@@ -527,7 +691,7 @@ function podiumHTML(arr, key) {
 // ========== 盈亏榜 ==========
 function renderProfit() {
     const map = {};
-    gameData.games.forEach(g => {
+    filteredGames().forEach(g => {
         g.players.forEach(p => {
             if (!map[p.name]) map[p.name] = { name: p.name, totalProfit: 0, totalStart: 0, count: 0 };
             map[p.name].totalProfit += (p.profit || 0);
@@ -575,8 +739,9 @@ function renderHistory() {
         }).join(' · ');
         item.innerHTML = `
             <div class="history-head">
-                <span class="history-date">📅 ${g.date}</span>
+                <span class="history-date">📅 ${g.date}${g.eventName ? ' · <span style="color:#b39ddb">'+g.eventName+'</span>' : ''}</span>
                 <span><span class="history-meta">${g.playerCount}人 · 起始${(g.startChips||0).toLocaleString()}</span>
+                <button class="btn-edit-history" onclick="openEdit(${g.id})">编辑</button>
                 <button class="btn-del-history" onclick="deleteGame(${g.id})">删除</button></span>
             </div>
             <div class="history-result">${resultStr}</div>`;
@@ -588,6 +753,97 @@ function deleteGame(id) {
     gameData.games = gameData.games.filter(g => g.id !== id);
     persist();
     renderHistory();
+}
+
+// ========== 编辑记录 ==========
+function openEdit(id) {
+    const g = gameData.games.find(x => x.id === id);
+    if (!g) return;
+    editingGameId = id;
+    document.getElementById('editEventName').value = g.eventName || '';
+    document.getElementById('editStartChips').value = g.startChips || 0;
+    const box = document.getElementById('editPlayers');
+    box.innerHTML = '';
+    [...g.players].sort((a,b) => a.rank - b.rank).forEach(p => {
+        const row = document.createElement('div');
+        row.className = 'edit-modal-row';
+        row.innerHTML = `<span>${getMedal(p.rank)}</span>
+            <input type="text" class="edit-pname" value="${p.name.replace(/"/g,'&quot;')}">
+            <input type="number" class="edit-pchips" value="${p.chips}" min="0">`;
+        box.appendChild(row);
+    });
+    document.getElementById('editModal').classList.add('show');
+}
+function closeEdit() { document.getElementById('editModal').classList.remove('show'); editingGameId = null; }
+function saveEdit() {
+    const g = gameData.games.find(x => x.id === editingGameId);
+    if (!g) return;
+    const startChips = parseInt(document.getElementById('editStartChips').value) || 0;
+    if (startChips <= 0) { alert('起始筹码要大于0'); return; }
+    const names = [...document.querySelectorAll('#editPlayers .edit-pname')];
+    const chips = [...document.querySelectorAll('#editPlayers .edit-pchips')];
+    const raw = names.map((n, i) => ({ name: n.value.trim() || `玩家${i+1}`, chips: parseInt(chips[i].value) || 0 }));
+    if (raw.reduce((s,p)=>s+p.chips,0) === 0) { alert('至少有一位玩家筹码不为0'); return; }
+    const scored = scoreGame(raw, startChips);
+    g.eventName = document.getElementById('editEventName').value.trim();
+    g.startChips = startChips;
+    g.playerCount = scored.length;
+    g.players = scored.map(p => ({ name: p.name, chips: p.chips, rank: p.rank, rankScore: p.rankScore, bonus: p.bonus, score: p.score, profit: p.profit, profitRate: p.profitRate }));
+    if (!Array.isArray(gameData.roster)) gameData.roster = [];
+    scored.forEach(p => { if (!gameData.roster.includes(p.name)) gameData.roster.push(p.name); });
+    persist();
+    closeEdit();
+    renderHistory();
+    alert('✅ 已更新，名次和积分已重算');
+}
+
+// ========== 个人战绩 ==========
+function rebuildStatsPlayers() {
+    const sel = document.getElementById('statsPlayerSelect');
+    const cur = sel.value;
+    const roster = getRoster();
+    sel.innerHTML = roster.length ? roster.map(n => `<option value="${n.replace(/"/g,'&quot;')}">${n}</option>`).join('') : '<option value="">（暂无玩家）</option>';
+    if (roster.includes(cur)) sel.value = cur;
+}
+function renderStats() {
+    const name = document.getElementById('statsPlayerSelect').value;
+    const box = document.getElementById('statsContent');
+    if (!name) { box.innerHTML = '<div class="empty">还没有玩家数据 🎲</div>'; return; }
+    const games = filteredGames().filter(g => g.players.some(p => p.name === name));
+    if (games.length === 0) { box.innerHTML = '<div class="empty">该玩家在此赛季暂无记录</div>'; return; }
+    let totalScore = 0, totalProfit = 0, totalStart = 0, champs = 0, top3 = 0, bestScore = 0, bestProfit = -Infinity;
+    const rows = [];
+    [...games].reverse().forEach(g => {
+        const p = g.players.find(x => x.name === name);
+        totalScore += p.score;
+        totalProfit += (p.profit || 0);
+        totalStart += (g.startChips || 0);
+        if (p.rank === 1) champs++;
+        if (p.rank <= 3) top3++;
+        if (p.score > bestScore) bestScore = p.score;
+        if ((p.profit||0) > bestProfit) bestProfit = p.profit||0;
+        rows.push({ g, p });
+    });
+    const count = games.length;
+    const avgScore = (totalScore / count).toFixed(1);
+    const rate = totalStart > 0 ? (totalProfit / totalStart * 100) : 0;
+    box.innerHTML = `
+        <div class="stat-grid">
+            <div class="stat-cell"><div class="v">${count}</div><div class="l">参赛场次</div></div>
+            <div class="stat-cell"><div class="v">${totalScore}</div><div class="l">累计积分</div></div>
+            <div class="stat-cell"><div class="v">🥇 ${champs}</div><div class="l">夺冠次数</div></div>
+            <div class="stat-cell"><div class="v">${top3}</div><div class="l">前三次数</div></div>
+            <div class="stat-cell"><div class="v">${avgScore}</div><div class="l">场均积分</div></div>
+            <div class="stat-cell"><div class="v">${bestScore}</div><div class="l">单场最高分</div></div>
+            <div class="stat-cell"><div class="v">${fmtRate(rate)}</div><div class="l">总收益率</div></div>
+            <div class="stat-cell"><div class="v">${fmtProfit(bestProfit)}</div><div class="l">单场最大盈利</div></div>
+        </div>
+        <h3 style="font-size:1em; color:#90caf9; margin:14px 0 8px;">📋 参赛记录</h3>
+        <div class="stat-games">${rows.map(({g,p}) => `
+            <div class="stat-game-row">
+                <span>${getMedal(p.rank)} ${g.date.slice(5)}${g.eventName ? ' · '+g.eventName : ''}</span>
+                <span>${p.score}分 · ${fmtProfit(p.profit||0)}</span>
+            </div>`).join('')}</div>`;
 }
 
 // ========== 导入导出 / 清空 ==========
@@ -618,14 +874,17 @@ function importData(event) {
 }
 function clearAll() {
     if (!confirm('⚠️ 确定清空全部记录吗？此操作不可恢复！建议先导出备份。')) return;
-    if (!confirm('再确认一次：真的要删除所有比赛记录吗？')) return;
-    gameData = { games: [] };
+    const answer = prompt('危险操作！这会删除所有比赛记录' + (cloudMode ? '（含云端，所有人都会清空）' : '') + '。\n\n如果确定，请输入「清空」两个字：');
+    if (answer !== '清空') { alert('已取消'); return; }
+    const keepRoster = Array.isArray(gameData.roster) ? gameData.roster : getRoster();
+    gameData = { games: [], roster: keepRoster };
     persist();
     renderHistory();
-    alert('已清空');
+    alert('已清空全部比赛记录（玩家名册已保留）');
 }
 
 // ========== 启动 ==========
+document.getElementById('verTag').textContent = APP_VERSION;
 loadLocal();
 init();
 initCloud();

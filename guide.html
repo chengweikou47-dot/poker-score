@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>使用指引 · 德州扑克积分系统</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    min-height: 100vh; padding: 20px 16px; color: #e0e0e0; line-height: 1.7;
+}
+.container { max-width: 680px; margin: 0 auto; }
+h1 { text-align: center; font-size: 1.7em; color: #fff; margin-bottom: 4px; }
+.sub { text-align: center; color: #8899aa; font-size: 0.9em; margin-bottom: 24px; }
+.card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 22px; margin-bottom: 16px; }
+.card h2 { font-size: 1.15em; color: #64b5f6; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+.step { display: flex; gap: 14px; margin-bottom: 16px; }
+.step:last-child { margin-bottom: 0; }
+.step-num { width: 30px; height: 30px; border-radius: 50%; background: linear-gradient(135deg,#1e88e5,#1565c0); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0; font-size: 0.95em; }
+.step-body { font-size: 0.95em; color: #d0d0d0; }
+.step-body strong { color: #90caf9; }
+.link-box { background: rgba(30,136,229,0.15); border: 1px solid rgba(100,181,246,0.3); border-radius: 10px; padding: 14px; text-align: center; margin: 8px 0; word-break: break-all; }
+.link-box a { color: #64b5f6; font-size: 1.05em; text-decoration: none; font-weight: 600; }
+.config-box { background: rgba(0,0,0,0.4); border-radius: 8px; padding: 12px; font-family: monospace; font-size: 0.72em; color: #9fe; margin: 10px 0; white-space: pre-wrap; word-break: break-all; max-height: 180px; overflow-y: auto; }
+.tip { background: rgba(255,167,38,0.1); border-left: 3px solid #ffa726; border-radius: 6px; padding: 10px 14px; font-size: 0.88em; color: #ffcc80; margin-top: 12px; }
+.tag { display: inline-block; padding: 2px 10px; border-radius: 10px; font-size: 0.82em; margin: 0 2px; }
+.tag-red { background: rgba(255,82,82,0.15); color: #ff5252; }
+.tag-green { background: rgba(76,175,80,0.15); color: #66bb6a; }
+.tab-pill { display: inline-block; background: rgba(100,181,246,0.15); color: #90caf9; padding: 3px 12px; border-radius: 12px; font-size: 0.88em; margin: 2px; }
+.footer { text-align: center; color: #667; font-size: 0.82em; margin-top: 20px; padding-bottom: 10px; }
+</style>
+</head>
+<body>
+<div class="container">
+    <h1>🃏 扑克积分系统 · 使用指引</h1>
+    <p class="sub">人人都能记分 · 实时同步 · 跨年决战</p>
+
+    <div class="card">
+        <h2>📲 第一步：打开网站 + 连接云端</h2>
+        <div class="step">
+            <div class="step-num">1</div>
+            <div class="step-body">手机或电脑浏览器打开网址（建议存成书签）：
+                <div class="link-box"><a href="https://chengweikou47-dot.github.io/poker-score/">chengweikou47-dot.github.io/poker-score</a></div>
+            </div>
+        </div>
+        <div class="step">
+            <div class="step-num">2</div>
+            <div class="step-body">点底部 <span class="tab-pill">📅 历史</span> → <strong>☁️ 云端设置</strong></div>
+        </div>
+        <div class="step">
+            <div class="step-num">3</div>
+            <div class="step-body">把下面这段<strong>整段复制</strong>，粘进输入框，点「连接云端」：
+                <div class="config-box">{
+  "apiKey": "AIzaSyBrzYZQgoYSC3Hpx3gXOwknK_RsKOMSxUI",
+  "authDomain": "poker-club-abbf3.firebaseapp.com",
+  "databaseURL": "https://poker-club-abbf3-default-rtdb.asia-southeast1.firebasedatabase.app",
+  "projectId": "poker-club-abbf3",
+  "storageBucket": "poker-club-abbf3.firebasestorage.app",
+  "messagingSenderId": "202545650769",
+  "appId": "1:202545650769:web:02b2d131cbe0299054ec70"
+}</div>
+            </div>
+        </div>
+        <div class="step">
+            <div class="step-num">4</div>
+            <div class="step-body">页面刷新后，顶部出现绿色 <strong>「☁️ 云端共享中」</strong> 就成功了！大家就连到同一个排行榜了。</div>
+        </div>
+        <div class="tip">⚠️ 每个人都要做一次这个连接（粘同一段配置），只用做一次，之后浏览器会记住。需要科学上网才能连。</div>
+    </div>
+
+    <div class="card">
+        <h2>🎯 第二步：每场打完怎么记分</h2>
+        <div class="step">
+            <div class="step-num">1</div>
+            <div class="step-body">点 <span class="tab-pill">🎯 算分</span> 标签</div>
+        </div>
+        <div class="step">
+            <div class="step-num">2</div>
+            <div class="step-body">填 <strong>本场每人起始筹码</strong>（就是开局平分的那个数，比如1500）</div>
+        </div>
+        <div class="step">
+            <div class="step-num">3</div>
+            <div class="step-body">填每个人的 <strong>姓名</strong> 和 <strong>结束时的筹码</strong>（出局的填 0）。人不够6个点「+添加玩家」</div>
+        </div>
+        <div class="step">
+            <div class="step-num">4</div>
+            <div class="step-body">点 <strong>「计算本场积分与盈亏」</strong>，看结果没问题后点 <strong>「💾 保存本场」</strong></div>
+        </div>
+        <div class="tip">💡 名次按结束筹码自动排：筹码最多=冠军。一场只需一个人记录，保存后所有人都能看到。</div>
+    </div>
+
+    <div class="card">
+        <h2>🏆 第三步：看排名</h2>
+        <div class="step">
+            <div class="step-num">📊</div>
+            <div class="step-body"><span class="tab-pill">🏆 排行榜</span> 里有两个榜：<br>
+            • <strong>夺奖榜</strong>：取每人最好的N场，<strong>年底礼物看这个</strong>🎁<br>
+            • <strong>总积分榜</strong>：所有场次全加，看活跃度</div>
+        </div>
+        <div class="step">
+            <div class="step-num">💰</div>
+            <div class="step-body"><span class="tab-pill">💰 盈亏榜</span> 看谁筹码玩得最溜：<span class="tag tag-red">红=赚</span> <span class="tag tag-green">绿=亏</span>（我们不玩钱，纯比筹码收益率）</div>
+        </div>
+    </div>
+
+    <div class="card">
+        <h2>📖 积分规则速览</h2>
+        <div class="step-body" style="line-height:2;">
+            <strong>单场积分 = 名次分 + 人数加成</strong><br>
+            名次分：冠军30 / 亚军24 / 季军19 / 第4名15 / 第5名12 / 第6名10 / 第7名8 / 之后5<br>
+            人数加成：超过5人，每多1人，前三名各 +1<br>
+            <span style="color:#888; font-size:0.9em;">完整规则点网站里的「规则手册」查看</span>
+        </div>
+    </div>
+
+    <p class="footer">🎉 玩得开心最重要 · 2026赛季跨年决战</p>
+</div>
+</body>
+</html>
